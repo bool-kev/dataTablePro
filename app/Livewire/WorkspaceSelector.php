@@ -12,6 +12,15 @@ class WorkspaceSelector extends Component
     public $availableWorkspaces;
     public $showDropdown = false;
 
+    protected WorkspaceService $workspaceService;
+    protected WorkspaceRepository $workspaceRepository;
+
+    public function boot(WorkspaceService $workspaceService, WorkspaceRepository $workspaceRepository)
+    {
+        $this->workspaceService = $workspaceService;
+        $this->workspaceRepository = $workspaceRepository;
+    }
+
     public function mount()
     {
         $this->loadWorkspaces();
@@ -19,21 +28,15 @@ class WorkspaceSelector extends Component
 
     public function loadWorkspaces()
     {
-        $workspaceService = app(WorkspaceService::class);
-        $workspaceRepository = app(WorkspaceRepository::class);
-        
-        $this->currentWorkspace = $workspaceService->getCurrentWorkspace(auth()->user());
-        $this->availableWorkspaces = $workspaceRepository->getUserWorkspaces(auth()->user());
+        $this->currentWorkspace = $this->workspaceService->getCurrentWorkspace(auth()->user());
+        $this->availableWorkspaces = $this->workspaceRepository->getUserWorkspaces(auth()->user());
     }
 
     public function switchWorkspace($workspaceId)
     {
-        $workspaceService = app(WorkspaceService::class);
-        $workspaceRepository = app(WorkspaceRepository::class);
+        $workspace = $this->workspaceRepository->findById($workspaceId);
         
-        $workspace = $workspaceRepository->findById($workspaceId);
-        
-        if ($workspace && $workspaceService->switchWorkspace(auth()->user(), $workspace)) {
+        if ($workspace && $this->workspaceService->switchWorkspace(auth()->user(), $workspace)) {
             $this->currentWorkspace = $workspace;
             $this->showDropdown = false;
             

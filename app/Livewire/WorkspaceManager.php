@@ -25,9 +25,18 @@ class WorkspaceManager extends Component
     public $inviteEmail = '';
     public $inviteRole = 'viewer';
 
+    protected WorkspaceService $workspaceService;
+    protected WorkspaceRepository $workspaceRepository;
+
     protected $queryString = [
         'search' => ['except' => ''],
     ];
+
+    public function boot(WorkspaceService $workspaceService, WorkspaceRepository $workspaceRepository)
+    {
+        $this->workspaceService = $workspaceService;
+        $this->workspaceRepository = $workspaceRepository;
+    }
 
     public function updatedSearch()
     {
@@ -46,8 +55,7 @@ class WorkspaceManager extends Component
 
     public function openSettings($workspaceId)
     {
-        $workspaceRepository = app(WorkspaceRepository::class);
-        $this->selectedWorkspace = $workspaceRepository->findById($workspaceId);
+        $this->selectedWorkspace = $this->workspaceRepository->findById($workspaceId);
         
         if ($this->selectedWorkspace) {
             $this->editingName = $this->selectedWorkspace->name;
@@ -71,9 +79,7 @@ class WorkspaceManager extends Component
         ]);
 
         if ($this->selectedWorkspace) {
-            $workspaceRepository = app(WorkspaceRepository::class);
-            
-            $workspaceRepository->update($this->selectedWorkspace, [
+            $this->workspaceRepository->update($this->selectedWorkspace, [
                 'name' => $this->editingName,
                 'description' => $this->editingDescription,
             ]);
@@ -85,23 +91,20 @@ class WorkspaceManager extends Component
 
     public function confirmDelete($workspaceId)
     {
-        $workspaceRepository = app(WorkspaceRepository::class);
-        $this->selectedWorkspace = $workspaceRepository->findById($workspaceId);
+        $this->selectedWorkspace = $this->workspaceRepository->findById($workspaceId);
         $this->showDeleteModal = true;
     }
 
     public function deleteWorkspace()
     {
         if ($this->selectedWorkspace) {
-            $workspaceService = app(WorkspaceService::class);
-            
             // Vérifier que l'utilisateur est propriétaire
             if ($this->selectedWorkspace->owner_id !== auth()->id()) {
                 session()->flash('error', 'Seul le propriétaire peut supprimer un workspace.');
                 return;
             }
             
-            $workspaceService->deleteWorkspace($this->selectedWorkspace);
+            $this->workspaceService->deleteWorkspace($this->selectedWorkspace);
             
             session()->flash('success', 'Workspace supprimé avec succès.');
             $this->showDeleteModal = false;
@@ -117,9 +120,7 @@ class WorkspaceManager extends Component
         ]);
 
         if ($this->selectedWorkspace) {
-            $workspaceService = app(WorkspaceService::class);
-            
-            if ($workspaceService->inviteUserToWorkspace(
+            if ($this->workspaceService->inviteUserToWorkspace(
                 $this->selectedWorkspace, 
                 $this->inviteEmail, 
                 $this->inviteRole
@@ -134,12 +135,9 @@ class WorkspaceManager extends Component
 
     public function switchToWorkspace($workspaceId)
     {
-        $workspaceService = app(WorkspaceService::class);
-        $workspaceRepository = app(WorkspaceRepository::class);
+        $workspace = $this->workspaceRepository->findById($workspaceId);
         
-        $workspace = $workspaceRepository->findById($workspaceId);
-        
-        if ($workspace && $workspaceService->switchWorkspace(auth()->user(), $workspace)) {
+        if ($workspace && $this->workspaceService->switchWorkspace(auth()->user(), $workspace)) {
             return $this->redirect(route('dashboard'));
         }
         
@@ -148,13 +146,11 @@ class WorkspaceManager extends Component
 
     public function getWorkspaces()
     {
-        $workspaceRepository = app(WorkspaceRepository::class);
-        
         if ($this->search) {
-            return $workspaceRepository->searchWorkspaces(auth()->user(), $this->search);
+            return $this->workspaceRepository->searchWorkspaces(auth()->user(), $this->search);
         }
         
-        return $workspaceRepository->paginate(auth()->user(), 12);
+        return $this->workspaceRepository->paginate(auth()->user(), 12);
     }
 
     public function render()

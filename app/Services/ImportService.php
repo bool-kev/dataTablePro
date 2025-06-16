@@ -180,5 +180,4 @@ class ImportService
 
         return $exportData;
     }
-    }
 }

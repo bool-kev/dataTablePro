@@ -28,17 +28,30 @@ class DataTable extends Component
     public $editData = [];
     public $currentWorkspace = null;
 
+    protected ImportedDataRepository $importedDataRepository;
+    protected ExportService $exportService;
+    protected WorkspaceService $workspaceService;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'sortBy' => ['except' => 'id'],
         'sortDirection' => ['except' => 'desc'],
     ];
 
+    public function boot(
+        ImportedDataRepository $importedDataRepository,
+        ExportService $exportService,
+        WorkspaceService $workspaceService
+    ) {
+        $this->importedDataRepository = $importedDataRepository;
+        $this->exportService = $exportService;
+        $this->workspaceService = $workspaceService;
+    }
+
     public function mount()
     {
         $this->filters = [];
-        $workspaceService = app(WorkspaceService::class);
-        $this->currentWorkspace = $workspaceService->getCurrentWorkspace(auth()->user());
+        $this->currentWorkspace = $this->workspaceService->getCurrentWorkspace(auth()->user());
     }
 
     public function updatedSearch()
@@ -73,23 +86,20 @@ class DataTable extends Component
 
     public function deleteRow($id)
     {
-        $repository = app(ImportedDataRepository::class);
-        $row = $repository->findById($id);
+        $row = $this->importedDataRepository->findById($id);
         
         if ($row) {
-            $repository->delete($row);
+            $this->importedDataRepository->delete($row);
             session()->flash('message', 'Ligne supprimée avec succès.');
         }
     }
 
     public function deleteSelected()
     {
-        $repository = app(ImportedDataRepository::class);
-        
         foreach ($this->selectedRows as $id) {
-            $row = $repository->findById($id);
+            $row = $this->importedDataRepository->findById($id);
             if ($row) {
-                $repository->delete($row);
+                $this->importedDataRepository->delete($row);
             }
         }
         
@@ -100,8 +110,7 @@ class DataTable extends Component
 
     public function viewRow($id)
     {
-        $repository = app(ImportedDataRepository::class);
-        $row = $repository->findById($id);
+        $row = $this->importedDataRepository->findById($id);
         
         if ($row) {
             $this->modalData = $row->data;
@@ -111,8 +120,7 @@ class DataTable extends Component
 
     public function editRow($id)
     {
-        $repository = app(ImportedDataRepository::class);
-        $row = $repository->findById($id);
+        $row = $this->importedDataRepository->findById($id);
         
         if ($row) {
             $this->editingRow = $row;
@@ -122,10 +130,8 @@ class DataTable extends Component
 
     public function saveEdit()
     {
-        $repository = app(ImportedDataRepository::class);
-        
         if ($this->editingRow) {
-            $repository->update($this->editingRow, ['data' => $this->editData]);
+            $this->importedDataRepository->update($this->editingRow, ['data' => $this->editData]);
             $this->editingRow = null;
             $this->editData = [];
             session()->flash('message', 'Ligne modifiée avec succès.');
@@ -140,10 +146,8 @@ class DataTable extends Component
 
     public function exportCsv()
     {
-        $exportService = app(ExportService::class);
-        
         try {
-            $filename = $exportService->exportToCsv($this->filters, $this->currentWorkspace);
+            $filename = $this->exportService->exportToCsv($this->filters, $this->currentWorkspace);
             session()->flash('message', 'Export CSV créé: ' . $filename);
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de l\'export: ' . $e->getMessage());
@@ -152,10 +156,8 @@ class DataTable extends Component
 
     public function exportExcel()
     {
-        $exportService = app(ExportService::class);
-        
         try {
-            $filename = $exportService->exportToExcel($this->filters, $this->currentWorkspace);
+            $filename = $this->exportService->exportToExcel($this->filters, $this->currentWorkspace);
             session()->flash('message', 'Export Excel créé: ' . $filename);
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de l\'export: ' . $e->getMessage());
@@ -171,8 +173,7 @@ class DataTable extends Component
 
     public function getData()
     {
-        $repository = app(ImportedDataRepository::class);
-        return $repository->paginate(
+        return $this->importedDataRepository->paginate(
             $this->perPage,
             $this->search,
             $this->sortBy,
@@ -184,8 +185,7 @@ class DataTable extends Component
 
     public function getColumns()
     {
-        $repository = app(ImportedDataRepository::class);
-        return $repository->getUniqueColumns($this->currentWorkspace);
+        return $this->importedDataRepository->getUniqueColumns($this->currentWorkspace);
     }
 
     public function render()

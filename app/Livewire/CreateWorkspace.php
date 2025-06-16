@@ -12,6 +12,8 @@ class CreateWorkspace extends Component
     public $database_type = 'sqlite';
     public $isCreating = false;
 
+    protected WorkspaceService $workspaceService;
+
     protected $rules = [
         'name' => 'required|string|min:3|max:255',
         'description' => 'nullable|string|max:500',
@@ -27,6 +29,11 @@ class CreateWorkspace extends Component
         'database_type.in' => 'Type de base de données non supporté.',
     ];
 
+    public function boot(WorkspaceService $workspaceService)
+    {
+        $this->workspaceService = $workspaceService;
+    }
+
     public function createWorkspace()
     {
         $this->validate();
@@ -34,16 +41,14 @@ class CreateWorkspace extends Component
         $this->isCreating = true;
         
         try {
-            $workspaceService = app(WorkspaceService::class);
-            
-            $workspace = $workspaceService->createWorkspace(auth()->user(), [
+            $workspace = $this->workspaceService->createWorkspace(auth()->user(), [
                 'name' => $this->name,
                 'description' => $this->description,
                 'database_type' => $this->database_type,
             ]);
             
             // Basculer automatiquement vers le nouveau workspace
-            $workspaceService->switchWorkspace(auth()->user(), $workspace);
+            $this->workspaceService->switchWorkspace(auth()->user(), $workspace);
             
             session()->flash('success', 'Workspace "' . $workspace->name . '" créé avec succès !');
             

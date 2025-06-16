@@ -13,6 +13,13 @@ class ImportHistory extends Component
     public $perPage = 10;
     public $showDetails = null;
 
+    protected ImportHistoryRepository $importHistoryRepository;
+
+    public function boot(ImportHistoryRepository $importHistoryRepository)
+    {
+        $this->importHistoryRepository = $importHistoryRepository;
+    }
+
     public function viewDetails($importId)
     {
         $this->showDetails = $this->showDetails === $importId ? null : $importId;
@@ -20,11 +27,10 @@ class ImportHistory extends Component
 
     public function render()
     {
-        $repository = app(ImportHistoryRepository::class);
-        
         return view('livewire.import-history', [
-            'imports' => $repository->paginate($this->perPage),
-            'statistics' => $repository->getStatistics(),
+            'imports' => $this->importHistoryRepository->paginate($this->perPage),
+            'statistics' => $this->importHistoryRepository->getStatistics(),
         ]);
     }
+    
 }

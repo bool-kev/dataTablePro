@@ -12,10 +12,23 @@ class Dashboard extends Component
 {
     public $currentWorkspace;
 
+    protected ImportHistoryRepository $importHistoryRepository;
+    protected ImportedDataRepository $importedDataRepository;
+    protected WorkspaceService $workspaceService;
+
+    public function boot(
+        ImportHistoryRepository $importHistoryRepository,
+        ImportedDataRepository $importedDataRepository,
+        WorkspaceService $workspaceService
+    ) {
+        $this->importHistoryRepository = $importHistoryRepository;
+        $this->importedDataRepository = $importedDataRepository;
+        $this->workspaceService = $workspaceService;
+    }
+
     public function mount()
     {
-        $workspaceService = app(WorkspaceService::class);
-        $this->currentWorkspace = $workspaceService->getCurrentWorkspace(auth()->user);
+        $this->currentWorkspace = $this->workspaceService->getCurrentWorkspace(auth()->user());
     }
 
     public function getStats()
@@ -29,13 +42,10 @@ class Dashboard extends Component
             ];
         }
 
-        $importHistoryRepo = app(ImportHistoryRepository::class);
-        $importedDataRepo = app(ImportedDataRepository::class);
-
-        $totalRows = $importedDataRepo->count($this->currentWorkspace);
-        $successfulImports = $importHistoryRepo->countByStatus('completed', $this->currentWorkspace);
-        $failedImports = $importHistoryRepo->countByStatus('failed', $this->currentWorkspace);
-        $uniqueColumns = count($importedDataRepo->getUniqueColumns($this->currentWorkspace));
+        $totalRows = $this->importedDataRepository->count($this->currentWorkspace);
+        $successfulImports = $this->importHistoryRepository->countByStatus('completed', $this->currentWorkspace);
+        $failedImports = $this->importHistoryRepository->countByStatus('failed', $this->currentWorkspace);
+        $uniqueColumns = count($this->importedDataRepository->getUniqueColumns($this->currentWorkspace));
 
         return [
             'total_rows' => $totalRows,
@@ -51,8 +61,7 @@ class Dashboard extends Component
             return collect();
         }
 
-        $importHistoryRepo = app(ImportHistoryRepository::class);
-        return $importHistoryRepo->getRecentImports(5, $this->currentWorkspace);
+        return $this->importHistoryRepository->getRecentImports(5, $this->currentWorkspace);
     }
 
     public function getChartData()
@@ -70,8 +79,6 @@ class Dashboard extends Component
             ];
         }
 
-        $importHistoryRepo = app(ImportHistoryRepository::class);
-
         // Données pour le graphique des imports par jour (7 derniers jours)
         $days = [];
         $importsCount = [];
@@ -80,12 +87,12 @@ class Dashboard extends Component
             $date = Carbon::now()->subDays($i);
             $days[] = $date->format('d/m');
             
-            $count = $importHistoryRepo->countByDate($date->format('Y-m-d'), $this->currentWorkspace);
+            $count = $this->importHistoryRepository->countByDate($date->format('Y-m-d'), $this->currentWorkspace);
             $importsCount[] = $count;
         }
 
         // Données pour le graphique des types de fichiers
-        $fileTypes = $importHistoryRepo->getFileTypeStats($this->currentWorkspace);
+        $fileTypes = $this->importHistoryRepository->getFileTypeStats($this->currentWorkspace);
         
         return [
             'imports_by_day' => [

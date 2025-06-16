@@ -16,6 +16,9 @@ class FileUpload extends Component
     public $progress = 0;
     public $currentWorkspace = null;
 
+    protected ImportService $importService;
+    protected WorkspaceService $workspaceService;
+
     protected $rules = [
         'file' => 'required|file|mimes:csv,xlsx,xls|max:10240', // 10MB max
     ];
@@ -26,10 +29,15 @@ class FileUpload extends Component
         'file.max' => 'Le fichier ne doit pas dépasser 10 MB.',
     ];
 
+    public function boot(ImportService $importService, WorkspaceService $workspaceService)
+    {
+        $this->importService = $importService;
+        $this->workspaceService = $workspaceService;
+    }
+
     public function mount()
     {
-        $workspaceService = app(WorkspaceService::class);
-        $this->currentWorkspace = $workspaceService->getCurrentWorkspace(auth()->user());
+        $this->currentWorkspace = $this->workspaceService->getCurrentWorkspace(auth()->user());
         
         if (!$this->currentWorkspace) {
             session()->flash('error', 'Aucun workspace sélectionné. Veuillez créer ou sélectionner un workspace.');
@@ -39,6 +47,7 @@ class FileUpload extends Component
     public function updatedFile()
     {
         $this->validate();
+        $this->upload();
     }
 
     public function upload()
@@ -54,15 +63,13 @@ class FileUpload extends Component
         $this->progress = 0;
 
         try {
-            $importService = app(ImportService::class);
-            
             // Simuler le progrès
             for ($i = 20; $i <= 80; $i += 20) {
                 $this->progress = $i;
                 usleep(200000); // 0.2 secondes
             }
 
-            $importHistory = $importService->processFile($this->file, $this->currentWorkspace);
+            $importHistory = $this->importService->processFile($this->file, $this->currentWorkspace);
             
             $this->progress = 100;
             
