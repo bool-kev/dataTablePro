@@ -214,7 +214,9 @@ class DataTable extends Component
             }
             
             $filename = $this->exportService->exportToCsv($filters, $this->currentWorkspace);
-            session()->flash('message', 'Export CSV créé: ' . $filename);
+            
+            // Redirection vers le téléchargement
+            return $this->redirect(route('download.export', ['filename' => $filename]));
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de l\'export: ' . $e->getMessage());
         }
@@ -230,7 +232,27 @@ class DataTable extends Component
             }
             
             $filename = $this->exportService->exportToExcel($filters, $this->currentWorkspace);
-            session()->flash('message', 'Export Excel créé: ' . $filename);
+            
+            // Redirection vers le téléchargement
+            return $this->redirect(route('download.export', ['filename' => $filename]));
+        } catch (\Exception $e) {
+            session()->flash('error', 'Erreur lors de l\'export: ' . $e->getMessage());
+        }
+    }
+
+    public function exportJson()
+    {
+        try {
+            // Préparer les filtres pour l'export
+            $filters = [];
+            if ($this->filterColumn !== 'all' && !empty($this->filterValue)) {
+                $filters[$this->filterColumn] = $this->filterValue;
+            }
+            
+            $filename = $this->exportService->exportToJson($filters, $this->currentWorkspace);
+            
+            // Redirection vers le téléchargement
+            return $this->redirect(route('download.export', ['filename' => $filename]));
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de l\'export: ' . $e->getMessage());
         }

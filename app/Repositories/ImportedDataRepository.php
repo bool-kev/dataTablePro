@@ -24,11 +24,9 @@ class ImportedDataRepository
     ): LengthAwarePaginator {
         $query = $this->model->with('importHistory');
 
-        // Filtrer par workspace
+        // Filtrer par workspace (requis)
         if ($workspace) {
-            $query->whereHas('importHistory', function (Builder $q) use ($workspace) {
-                $q->where('workspace_id', $workspace->id);
-            });
+            $query->forWorkspace($workspace);
         }
 
         if ($search) {
@@ -76,9 +74,7 @@ class ImportedDataRepository
         
         // Si un workspace est spécifié, vérifier que la ligne appartient à ce workspace
         if ($workspace) {
-            $query->whereHas('importHistory', function (Builder $q) use ($workspace) {
-                $q->where('workspace_id', $workspace->id);
-            });
+            $query->forWorkspace($workspace);
         }
         
         return $query->find($id);
@@ -88,11 +84,9 @@ class ImportedDataRepository
     {
         $query = $this->model;
         
-        // Filtrer par workspace
+        // Filtrer par workspace (requis)
         if ($workspace) {
-            $query = $query->whereHas('importHistory', function (Builder $q) use ($workspace) {
-                $q->where('workspace_id', $workspace->id);
-            });
+            $query = $query->forWorkspace($workspace);
         }
         
         $allData = $query->pluck('data');
@@ -121,11 +115,9 @@ class ImportedDataRepository
     {
         $query = $this->model->with('importHistory');
 
-        // Filtrer par workspace
+        // Filtrer par workspace (requis)
         if ($workspace) {
-            $query->whereHas('importHistory', function (Builder $q) use ($workspace) {
-                $q->where('workspace_id', $workspace->id);
-            });
+            $query->forWorkspace($workspace);
         }
 
         foreach ($filters as $column => $value) {
@@ -144,11 +136,9 @@ class ImportedDataRepository
     {
         $query = $this->model;
 
-        // Filtrer par workspace
+        // Filtrer par workspace (requis)
         if ($workspace) {
-            $query = $query->whereHas('importHistory', function (Builder $q) use ($workspace) {
-                $q->where('workspace_id', $workspace->id);
-            });
+            $query = $query->forWorkspace($workspace);
         }
 
         return $query->count();

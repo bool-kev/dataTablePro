@@ -42,19 +42,16 @@ class EnsureWorkspaceSelected
             
             if ($workspace) {
                 session(['current_workspace_id' => $workspace->id]);
-                $workspace->setupDatabaseConnection();
             } else {
                 // Rediriger vers la création de workspace
                 return redirect()->route('create-workspace')
                     ->with('warning', 'Vous devez créer ou sélectionner un workspace pour continuer.');
             }
         } else {
-            // Configurer la connexion à la base de données du workspace
+            // Vérifier que le workspace existe toujours
             $workspace = auth()->user()->workspaces()->find($workspaceId);
             
-            if ($workspace) {
-                $workspace->setupDatabaseConnection();
-            } else {
+            if (!$workspace) {
                 session()->forget('current_workspace_id');
                 return redirect()->route('workspaces')
                     ->with('error', 'Le workspace sélectionné n\'existe plus.');

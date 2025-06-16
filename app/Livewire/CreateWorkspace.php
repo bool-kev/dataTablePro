@@ -9,7 +9,6 @@ class CreateWorkspace extends Component
 {
     public $name = '';
     public $description = '';
-    public $database_type = 'sqlite';
     public $isCreating = false;
 
     protected WorkspaceService $workspaceService;
@@ -17,7 +16,6 @@ class CreateWorkspace extends Component
     protected $rules = [
         'name' => 'required|string|min:3|max:255',
         'description' => 'nullable|string|max:500',
-        'database_type' => 'required|in:sqlite,mysql,postgresql',
     ];
 
     protected $messages = [
@@ -25,8 +23,6 @@ class CreateWorkspace extends Component
         'name.min' => 'Le nom doit contenir au moins 3 caractères.',
         'name.max' => 'Le nom ne peut pas dépasser 255 caractères.',
         'description.max' => 'La description ne peut pas dépasser 500 caractères.',
-        'database_type.required' => 'Le type de base de données est obligatoire.',
-        'database_type.in' => 'Type de base de données non supporté.',
     ];
 
     public function boot(WorkspaceService $workspaceService)
@@ -44,7 +40,6 @@ class CreateWorkspace extends Component
             $workspace = $this->workspaceService->createWorkspace(auth()->user(), [
                 'name' => $this->name,
                 'description' => $this->description,
-                'database_type' => $this->database_type,
             ]);
             
             // Basculer automatiquement vers le nouveau workspace

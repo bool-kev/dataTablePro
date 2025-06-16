@@ -3,7 +3,7 @@
         <div class="px-6 py-4 border-b border-gray-200">
             <h2 class="text-xl font-semibold text-gray-900">Créer un nouveau workspace</h2>
             <p class="mt-1 text-sm text-gray-600">
-                Un workspace vous permet d'organiser vos données de manière isolée avec sa propre base de données.
+                Un workspace vous permet d'organiser vos données de manière isolée avec ses propres imports et données.
             </p>
         </div>
 
@@ -62,31 +62,6 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-
-                {{-- Type de base de données --}}
-                <div>
-                    <label for="database_type" class="block text-sm font-medium text-gray-700">
-                        Type de base de données *
-                    </label>
-                    <div class="mt-1">
-                        <select 
-                            id="database_type"
-                            wire:model="database_type" 
-                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('database_type') border-red-300 @enderror"
-                            {{ $isCreating ? 'disabled' : '' }}
-                        >
-                            <option value="sqlite">SQLite (Recommandé)</option>
-                            <option value="mysql">MySQL</option>
-                            <option value="postgresql">PostgreSQL</option>
-                        </select>
-                    </div>
-                    @error('database_type')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    <p class="mt-1 text-xs text-gray-500">
-                        SQLite est recommandé pour sa simplicité et ses performances pour les projets de taille moyenne.
-                    </p>
-                </div>
             </div>
 
             {{-- Actions --}}
@@ -143,7 +118,7 @@
                 <h3 class="text-sm font-medium text-blue-800">À propos des workspaces</h3>
                 <div class="mt-2 text-sm text-blue-700">
                     <ul class="list-disc pl-5 space-y-1">
-                        <li>Chaque workspace dispose de sa propre base de données isolée</li>
+                        <li>Chaque workspace isole ses propres données et imports</li>
                         <li>Vous pouvez inviter d'autres utilisateurs à collaborer</li>
                         <li>Les données importées sont automatiquement organisées par workspace</li>
                         <li>Vous pouvez basculer entre vos workspaces à tout moment</li>

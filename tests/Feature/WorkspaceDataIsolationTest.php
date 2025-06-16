@@ -19,7 +19,7 @@ beforeEach(function () {
 });
 
 describe('Workspace Data Isolation', function () {
-    it('should create separate databases for different workspaces', function () {
+    it('should create workspaces with isolated data', function () {
         // Créer deux workspaces différents
         $workspace1 = $this->workspaceService->createWorkspace($this->user1, [
             'name' => 'Workspace 1',
@@ -31,10 +31,10 @@ describe('Workspace Data Isolation', function () {
             'description' => 'Deuxième workspace de test'
         ]);
         
-        // Vérifier que les workspaces ont des bases de données différentes
-        expect($workspace1->getDatabasePath())->not->toBe($workspace2->getDatabasePath());
-        expect(file_exists($workspace1->getDatabasePath()))->toBeTrue();
-        expect(file_exists($workspace2->getDatabasePath()))->toBeTrue();
+        // Vérifier que les workspaces ont des IDs différents
+        expect($workspace1->id)->not->toBe($workspace2->id);
+        expect($workspace1->name)->toBe('Workspace 1');
+        expect($workspace2->name)->toBe('Workspace 2');
     });
 
     it('should isolate data between workspaces', function () {
@@ -47,9 +47,9 @@ describe('Workspace Data Isolation', function () {
             'name' => 'Workspace 2'
         ]);
         
-        // Configurer le workspace 1 et ajouter des données
-        $workspace1->setupDatabaseConnection();
-        $importHistory1 = ImportHistory::on($workspace1->getDatabaseConnectionName())->create([
+        // Ajouter des données au workspace 1
+        $importHistory1 = ImportHistory::create([
+            'workspace_id' => $workspace1->id,
             'filename' => 'test1.csv',
             'original_filename' => 'test1.csv',
             'file_path' => '/tmp/test1.csv',
@@ -57,14 +57,14 @@ describe('Workspace Data Isolation', function () {
             'status' => 'completed'
         ]);
         
-        $data1 = ImportedData::on($workspace1->getDatabaseConnectionName())->create([
+        $data1 = ImportedData::create([
             'import_history_id' => $importHistory1->id,
             'data' => ['name' => 'John', 'age' => 30]
         ]);
         
-        // Configurer le workspace 2 et ajouter des données différentes
-        $workspace2->setupDatabaseConnection();
-        $importHistory2 = ImportHistory::on($workspace2->getDatabaseConnectionName())->create([
+        // Ajouter des données au workspace 2
+        $importHistory2 = ImportHistory::create([
+            'workspace_id' => $workspace2->id,
             'filename' => 'test2.csv',
             'original_filename' => 'test2.csv', 
             'file_path' => '/tmp/test2.csv',
@@ -72,7 +72,7 @@ describe('Workspace Data Isolation', function () {
             'status' => 'completed'
         ]);
         
-        $data2 = ImportedData::on($workspace2->getDatabaseConnectionName())->create([
+        $data2 = ImportedData::create([
             'import_history_id' => $importHistory2->id,
             'data' => ['name' => 'Jane', 'age' => 25]
         ]);
@@ -159,12 +159,9 @@ describe('Workspace Data Isolation', function () {
             'name' => 'Temporary Workspace'
         ]);
         
-        $dbPath = $workspace->getDatabasePath();
-        expect(file_exists($dbPath))->toBeTrue();
-        
-        // Ajouter des données
-        $workspace->setupDatabaseConnection();
-        $importHistory = ImportHistory::on($workspace->getDatabaseConnectionName())->create([
+        // Ajouter des données d'import
+        $importHistory = ImportHistory::create([
+            'workspace_id' => $workspace->id,
             'filename' => 'temp.csv',
             'original_filename' => 'temp.csv',
             'file_path' => '/tmp/temp.csv',
@@ -172,12 +169,23 @@ describe('Workspace Data Isolation', function () {
             'status' => 'completed'
         ]);
         
+        // Ajouter des données importées
+        $importedData = ImportedData::create([
+            'import_history_id' => $importHistory->id,
+            'data' => ['test' => 'data']
+        ]);
+        
+        // Vérifier que les données existent avant suppression
+        expect(ImportHistory::where('workspace_id', $workspace->id)->count())->toBe(1);
+        expect(ImportedData::where('import_history_id', $importHistory->id)->count())->toBe(1);
+        
         // Supprimer le workspace
         $deleted = $this->workspaceService->deleteWorkspace($workspace);
         expect($deleted)->toBeTrue();
         
-        // Vérifier que la base de données a été supprimée
-        expect(file_exists($dbPath))->toBeFalse();
+        // Vérifier que les données du workspace ont été supprimées par cascade
+        expect(ImportHistory::where('workspace_id', $workspace->id)->count())->toBe(0);
+        expect(ImportedData::where('import_history_id', $importHistory->id)->count())->toBe(0);
         
         // Vérifier que le workspace n'existe plus
         expect(Workspace::find($workspace->id))->toBeNull();

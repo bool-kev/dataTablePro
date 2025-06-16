@@ -3,14 +3,26 @@
 use App\Livewire\DataTable;
 use App\Models\ImportedData;
 use App\Models\ImportHistory;
+use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    // Créer un utilisateur et un workspace
+    $this->user = User::factory()->create();
+    $this->workspace = Workspace::factory()->create(['owner_id' => $this->user->id]);
+    $this->workspace->users()->attach($this->user->id, ['role' => 'owner']);
+    
+    // Authentifier l'utilisateur et définir le workspace courant
+    $this->actingAs($this->user);
+    session(['current_workspace_id' => $this->workspace->id]);
+    
     // Créer un historique d'import
     $this->importHistory = ImportHistory::create([
+        'workspace_id' => $this->workspace->id,
         'filename' => 'test.csv',
         'original_filename' => 'test.csv',
         'file_path' => 'imports/test.csv',

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\ImportHistory;
+use App\Models\Workspace;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -22,36 +23,58 @@ class ImportHistoryRepository
         return $importHistory->update($data);
     }
 
-    public function findById(int $id): ?ImportHistory
+    public function findById(int $id, ?Workspace $workspace = null): ?ImportHistory
     {
-        return $this->model->with('importedData')->find($id);
+        $query = $this->model->with('importedData');
+        
+        if ($workspace) {
+            $query->forWorkspace($workspace);
+        }
+        
+        return $query->find($id);
     }
 
-    public function getAll(): Collection
+    public function getAll(?Workspace $workspace = null): Collection
     {
-        return $this->model->with('importedData')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = $this->model->with('importedData')
+            ->orderBy('created_at', 'desc');
+        
+        if ($workspace) {
+            $query->forWorkspace($workspace);
+        }
+        
+        return $query->get();
     }
 
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(int $perPage = 15, ?Workspace $workspace = null): LengthAwarePaginator
     {
-        return $this->model->with('importedData')
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+        $query = $this->model->with('importedData')
+            ->orderBy('created_at', 'desc');
+        
+        if ($workspace) {
+            $query->forWorkspace($workspace);
+        }
+        
+        return $query->paginate($perPage);
     }
 
-    public function getStatistics(): array
+    public function getStatistics(?Workspace $workspace = null): array
     {
-        $total = $this->model->count();
-        $successful = $this->model->where('status', 'completed')->count();
-        $failed = $this->model->where('status', 'failed')->count();
-        $pending = $this->model->where('status', 'pending')->count();
-        $processing = $this->model->where('status', 'processing')->count();
+        $query = $this->model;
+        
+        if ($workspace) {
+            $query = $query->forWorkspace($workspace);
+        }
 
-        $totalRows = $this->model->sum('total_rows');
-        $successfulRows = $this->model->sum('successful_rows');
-        $failedRows = $this->model->sum('failed_rows');
+        $total = $query->count();
+        $successful = $query->where('status', 'completed')->count();
+        $failed = $query->where('status', 'failed')->count();
+        $pending = $query->where('status', 'pending')->count();
+        $processing = $query->where('status', 'processing')->count();
+
+        $totalRows = $query->sum('total_rows');
+        $successfulRows = $query->sum('successful_rows');
+        $failedRows = $query->sum('failed_rows');
 
         return [
             'total_imports' => $total,
@@ -66,14 +89,14 @@ class ImportHistoryRepository
         ];
     }
 
-    public function getRecentImports(int $limit = 10, ?\App\Models\Workspace $workspace = null): Collection
+    public function getRecentImports(int $limit = 10, ?Workspace $workspace = null): Collection
     {
         $query = $this->model->with('importedData')
             ->orderBy('created_at', 'desc')
             ->limit($limit);
 
         if ($workspace) {
-            $query->where('workspace_id', $workspace->id);
+            $query->forWorkspace($workspace);
         }
 
         return $query->get();
@@ -82,12 +105,12 @@ class ImportHistoryRepository
     /**
      * Count imports by status for a specific workspace
      */
-    public function countByStatus(string $status, ?\App\Models\Workspace $workspace = null): int
+    public function countByStatus(string $status, ?Workspace $workspace = null): int
     {
         $query = $this->model->where('status', $status);
 
         if ($workspace) {
-            $query->where('workspace_id', $workspace->id);
+            $query->forWorkspace($workspace);
         }
 
         return $query->count();
@@ -96,12 +119,12 @@ class ImportHistoryRepository
     /**
      * Count imports by date for a specific workspace
      */
-    public function countByDate(string $date, ?\App\Models\Workspace $workspace = null): int
+    public function countByDate(string $date, ?Workspace $workspace = null): int
     {
         $query = $this->model->whereDate('created_at', $date);
 
         if ($workspace) {
-            $query->where('workspace_id', $workspace->id);
+            $query->forWorkspace($workspace);
         }
 
         return $query->count();
@@ -110,13 +133,13 @@ class ImportHistoryRepository
     /**
      * Get file type statistics for a specific workspace
      */
-    public function getFileTypeStats(?\App\Models\Workspace $workspace = null): \Illuminate\Support\Collection
+    public function getFileTypeStats(?Workspace $workspace = null): \Illuminate\Support\Collection
     {
         $query = $this->model->selectRaw('file_type, COUNT(*) as count')
             ->groupBy('file_type');
 
         if ($workspace) {
-            $query->where('workspace_id', $workspace->id);
+            $query->forWorkspace($workspace);
         }
 
         $results = $query->get();

@@ -69,6 +69,13 @@
             >
                 Export Excel
             </button>
+            
+            <button 
+                wire:click="exportJson" 
+                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+                Export JSON
+            </button>
         </div>
     </div>
 

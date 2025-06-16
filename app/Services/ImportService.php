@@ -111,8 +111,6 @@ class ImportService
                     continue;
                 }
 
-                $rowData['workspace_id'] = $workspace->id ?? null;
-
                 $batchData[] = [
                     'import_history_id' => $importHistory->id,
                     'data' => json_encode($rowData),

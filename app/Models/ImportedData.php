@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class ImportedData extends Model
 {
@@ -20,6 +21,21 @@ class ImportedData extends Model
     public function importHistory(): BelongsTo
     {
         return $this->belongsTo(ImportHistory::class);
+    }
+
+    public function workspace(): BelongsTo
+    {
+        return $this->belongsTo(Workspace::class)->through('importHistory');
+    }
+
+    /**
+     * Scope to filter by workspace
+     */
+    public function scopeForWorkspace(Builder $query, Workspace $workspace): Builder
+    {
+        return $query->whereHas('importHistory', function (Builder $q) use ($workspace) {
+            $q->where('workspace_id', $workspace->id);
+        });
     }
 
     public function getDataAttribute($value)

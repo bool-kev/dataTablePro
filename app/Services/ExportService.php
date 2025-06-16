@@ -6,6 +6,9 @@ use App\Models\Workspace;
 use App\Repositories\ImportedDataRepository;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Collection;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExportService
 {
@@ -120,5 +123,74 @@ class ExportService
             'headings' => $allColumns,
             'rows' => $rows,
         ];
+    }
+
+    public function exportToJson(array $filters = [], ?Workspace $workspace = null): string
+    {
+        $data = $this->importedDataRepository->exportData($filters, $workspace);
+        
+        if ($data->isEmpty()) {
+            throw new \Exception('Aucune donnée à exporter');
+        }
+
+        $exportData = [];
+        foreach ($data as $item) {
+            $exportData[] = $item->data;
+        }
+
+        $filename = 'export_' . date('Y-m-d_H-i-s') . '.json';
+        $filePath = 'exports/' . $filename;
+        
+        // Créer le dossier s'il n'existe pas
+        $fullPath = storage_path('app/public/exports/');
+        if (!file_exists($fullPath)) {
+            mkdir($fullPath, 0755, true);
+        }
+
+        Storage::disk('public')->put($filePath, json_encode($exportData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        return $filename;
+    }
+
+    /**
+     * Export and download CSV directly
+     */
+    public function downloadCsv(array $filters = [], ?Workspace $workspace = null): BinaryFileResponse
+    {
+        $filename = $this->exportToCsv($filters, $workspace);
+        $filePath = 'exports/' . $filename;
+        $fullPath = Storage::disk('public')->path($filePath);
+        
+        return response()->download($fullPath, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    /**
+     * Export and download Excel directly
+     */
+    public function downloadExcel(array $filters = [], ?Workspace $workspace = null): BinaryFileResponse
+    {
+        $filename = $this->exportToExcel($filters, $workspace);
+        $filePath = 'exports/' . $filename;
+        $fullPath = Storage::disk('public')->path($filePath);
+        
+        return response()->download($fullPath, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    /**
+     * Export and download JSON directly
+     */
+    public function downloadJson(array $filters = [], ?Workspace $workspace = null): BinaryFileResponse
+    {
+        $filename = $this->exportToJson($filters, $workspace);
+        $filePath = 'exports/' . $filename;
+        $fullPath = Storage::disk('public')->path($filePath);
+        
+        return response()->download($fullPath, $filename, [
+            'Content-Type' => 'application/json',
+        ]);
     }
 }

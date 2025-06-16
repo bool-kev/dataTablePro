@@ -22,8 +22,6 @@ class WorkspaceFactory extends Factory
             'name' => $name,
             'slug' => \Illuminate\Support\Str::slug($name) . '-' . fake()->unique()->randomNumber(4),
             'description' => fake()->optional()->sentence(),
-            'database_name' => 'workspace_' . fake()->unique()->slug(),
-            'database_type' => 'sqlite',
             'owner_id' => \App\Models\User::factory(),
             'is_active' => true,
             'last_accessed_at' => fake()->optional()->dateTimeBetween('-1 month', 'now'),

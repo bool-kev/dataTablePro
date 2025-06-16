@@ -2,6 +2,8 @@
 
 use App\Livewire\FileUpload;
 use App\Models\ImportHistory;
+use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +13,15 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Storage::fake('public');
+    
+    // Créer un utilisateur et un workspace
+    $this->user = User::factory()->create();
+    $this->workspace = Workspace::factory()->create(['owner_id' => $this->user->id]);
+    $this->workspace->users()->attach($this->user->id, ['role' => 'owner']);
+    
+    // Authentifier l'utilisateur et définir le workspace courant
+    $this->actingAs($this->user);
+    session(['current_workspace_id' => $this->workspace->id]);
 });
 
 it('can render the file upload component', function () {

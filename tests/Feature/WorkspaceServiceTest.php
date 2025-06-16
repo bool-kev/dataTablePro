@@ -16,13 +16,11 @@ it('can create a new workspace', function () {
     $workspace = $this->workspaceService->createWorkspace($this->user, [
         'name' => 'Test Workspace',
         'description' => 'A test workspace',
-        'database_type' => 'sqlite',
     ]);
 
     expect($workspace)->toBeInstanceOf(Workspace::class);
     expect($workspace->name)->toBe('Test Workspace');
     expect($workspace->owner_id)->toBe($this->user->id);
-    expect($workspace->database_type)->toBe('sqlite');
     
     // Vérifier que l'utilisateur est ajouté au workspace
     expect($workspace->users()->where('user_id', $this->user->id)->exists())->toBeTrue();

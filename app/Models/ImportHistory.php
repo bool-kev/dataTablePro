@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class ImportHistory extends Model
 {
@@ -28,7 +30,7 @@ class ImportHistory extends Model
         'completed_at' => 'datetime',
     ];
 
-    public function workspace(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
     }
@@ -36,6 +38,14 @@ class ImportHistory extends Model
     public function importedData(): HasMany
     {
         return $this->hasMany(ImportedData::class);
+    }
+
+    /**
+     * Scope to filter by workspace
+     */
+    public function scopeForWorkspace(Builder $query, Workspace $workspace): Builder
+    {
+        return $query->where('workspace_id', $workspace->id);
     }
 
     public function getSuccessRateAttribute(): float

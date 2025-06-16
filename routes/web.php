@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\LandingController;
 use App\Livewire\CreateWorkspace;
 use App\Livewire\Dashboard;
@@ -20,13 +21,17 @@ Route::middleware(['workspace', 'auth'])->group(function () {
     Route::get('/data-table/{workspace?}', DataTable::class)->name('data-table');
     Route::get('/upload', FileUpload::class)->name('upload');
     Route::get('/import-history', ImportHistory::class)->name('import-history');
+    
+    // Download routes
+    Route::get('/download/export', [DownloadController::class, 'downloadExport'])->name('download.export');
 });
 
 // Routes Workspace - pas besoin de workspace sélectionné
-Route::get('/workspaces', WorkspaceManager::class)->name('workspaces');
-Route::get('/create-workspace', CreateWorkspace::class)->name('create-workspace');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/workspaces', WorkspaceManager::class)->name('workspaces');
+    Route::get('/create-workspace', CreateWorkspace::class)->name('create-workspace');
+
     Route::redirect('settings', 'settings/profile');
 
     Route::get('settings/profile', Profile::class)->name('settings.profile');
