@@ -12,69 +12,115 @@ class ImportedDataSeeder extends Seeder
      */
     public function run(): void
     {
-        // Créer quelques historiques d'import
-        $importHistory1 = \App\Models\ImportHistory::create([
-            'filename' => 'employees_2025.csv',
-            'original_filename' => 'employees_2025.csv',
-            'file_path' => 'imports/employees_2025.csv',
-            'file_type' => 'csv',
-            'status' => 'completed',
-            'total_rows' => 100,
-            'successful_rows' => 98,
-            'failed_rows' => 2,
-            'errors' => ['Ligne 15: Format email invalide', 'Ligne 67: Âge manquant'],
-            'started_at' => now()->subDays(2),
-            'completed_at' => now()->subDays(2)->addMinutes(5),
-        ]);
+        // Créer plusieurs historiques d'import avec différentes dates pour les graphiques
+        $histories = [
+            [
+                'filename' => 'employees_2025.csv',
+                'original_filename' => 'employees_2025.csv',
+                'file_path' => 'imports/employees_2025.csv',
+                'file_type' => 'csv',
+                'status' => 'completed',
+                'total_rows' => 100,
+                'successful_rows' => 98,
+                'failed_rows' => 2,
+                'errors' => ['Ligne 15: Format email invalide', 'Ligne 67: Âge manquant'],
+                'started_at' => now()->subDays(6),
+                'completed_at' => now()->subDays(6)->addMinutes(5),
+                'data_count' => 98
+            ],
+            [
+                'filename' => 'products_2025.xlsx',
+                'original_filename' => 'products_2025.xlsx',
+                'file_path' => 'imports/products_2025.xlsx',
+                'file_type' => 'xlsx',
+                'status' => 'completed',
+                'total_rows' => 50,
+                'successful_rows' => 50,
+                'failed_rows' => 0,
+                'errors' => null,
+                'started_at' => now()->subDays(4),
+                'completed_at' => now()->subDays(4)->addMinutes(2),
+                'data_count' => 50
+            ],
+            [
+                'filename' => 'clients_export.csv',
+                'original_filename' => 'clients_export.csv',
+                'file_path' => 'imports/clients_export.csv',
+                'file_type' => 'csv',
+                'status' => 'completed',
+                'total_rows' => 75,
+                'successful_rows' => 73,
+                'failed_rows' => 2,
+                'errors' => ['Format téléphone invalide'],
+                'started_at' => now()->subDays(3),
+                'completed_at' => now()->subDays(3)->addMinutes(3),
+                'data_count' => 73
+            ],
+            [
+                'filename' => 'inventory.xlsx',
+                'original_filename' => 'inventory.xlsx',
+                'file_path' => 'imports/inventory.xlsx',
+                'file_type' => 'xlsx',
+                'status' => 'completed',
+                'total_rows' => 200,
+                'successful_rows' => 195,
+                'failed_rows' => 5,
+                'errors' => null,
+                'started_at' => now()->subDays(1),
+                'completed_at' => now()->subDays(1)->addMinutes(8),
+                'data_count' => 195
+            ],
+            [
+                'filename' => 'today_data.csv',
+                'original_filename' => 'today_data.csv',
+                'file_path' => 'imports/today_data.csv',
+                'file_type' => 'csv',
+                'status' => 'completed',
+                'total_rows' => 30,
+                'successful_rows' => 30,
+                'failed_rows' => 0,
+                'errors' => null,
+                'started_at' => now()->subHours(2),
+                'completed_at' => now()->subHours(2)->addMinutes(1),
+                'data_count' => 30
+            ]
+        ];
 
-        $importHistory2 = \App\Models\ImportHistory::create([
-            'filename' => 'products_2025.xlsx',
-            'original_filename' => 'products_2025.xlsx',
-            'file_path' => 'imports/products_2025.xlsx',
-            'file_type' => 'xlsx',
-            'status' => 'completed',
-            'total_rows' => 50,
-            'successful_rows' => 50,
-            'failed_rows' => 0,
-            'errors' => null,
-            'started_at' => now()->subDay(),
-            'completed_at' => now()->subDay()->addMinutes(2),
-        ]);
+        foreach ($histories as $historyData) {
+            $dataCount = $historyData['data_count'];
+            unset($historyData['data_count']);
+            
+            $importHistory = \App\Models\ImportHistory::create($historyData);
 
-        // Générer des données d'employés
-        for ($i = 1; $i <= 98; $i++) {
-            \App\Models\ImportedData::create([
-                'import_history_id' => $importHistory1->id,
-                'data' => [
-                    'nom' => fake()->lastName(),
-                    'prenom' => fake()->firstName(),
-                    'email' => fake()->unique()->safeEmail(),
-                    'age' => fake()->numberBetween(22, 65),
-                    'departement' => fake()->randomElement(['IT', 'RH', 'Finance', 'Marketing', 'Ventes']),
-                    'salaire' => fake()->numberBetween(30000, 120000),
-                    'date_embauche' => fake()->dateTimeBetween('-5 years', 'now')->format('Y-m-d'),
-                    'statut' => fake()->randomElement(['Actif', 'Inactif', 'En congé']),
-                ],
-                'row_hash' => md5("employee_{$i}"),
-            ]);
-        }
-
-        // Générer des données de produits
-        for ($i = 1; $i <= 50; $i++) {
-            \App\Models\ImportedData::create([
-                'import_history_id' => $importHistory2->id,
-                'data' => [
-                    'nom_produit' => fake()->words(3, true),
-                    'sku' => fake()->unique()->regexify('[A-Z]{3}-[0-9]{4}'),
-                    'prix' => fake()->randomFloat(2, 10, 1000),
-                    'stock' => fake()->numberBetween(0, 500),
-                    'categorie' => fake()->randomElement(['Électronique', 'Vêtements', 'Maison', 'Sport', 'Livres']),
-                    'fournisseur' => fake()->company(),
-                    'date_creation' => fake()->dateTimeBetween('-2 years', 'now')->format('Y-m-d'),
-                    'actif' => fake()->boolean(80),
-                ],
-                'row_hash' => md5("product_{$i}"),
-            ]);
+            // Générer des données pour cet import
+            for ($i = 1; $i <= $dataCount; $i++) {
+                if ($historyData['file_type'] === 'csv') {
+                    \App\Models\ImportedData::create([
+                        'import_history_id' => $importHistory->id,
+                        'data' => [
+                            'nom' => fake()->lastName(),
+                            'prenom' => fake()->firstName(),
+                            'email' => fake()->unique()->safeEmail(),
+                            'age' => fake()->numberBetween(18, 65),
+                            'departement' => fake()->randomElement(['IT', 'HR', 'Finance', 'Marketing']),
+                            'salaire' => fake()->numberBetween(30000, 80000),
+                        ],
+                        'row_hash' => fake()->unique()->md5(),
+                    ]);
+                } else {
+                    \App\Models\ImportedData::create([
+                        'import_history_id' => $importHistory->id,
+                        'data' => [
+                            'nom_produit' => fake()->words(2, true),
+                            'prix' => fake()->randomFloat(2, 10, 500),
+                            'categorie' => fake()->randomElement(['Électronique', 'Vêtements', 'Livres', 'Sport']),
+                            'stock' => fake()->numberBetween(0, 100),
+                            'fournisseur' => fake()->company(),
+                        ],
+                        'row_hash' => fake()->unique()->md5(),
+                    ]);
+                }
+            }
         }
     }
 }

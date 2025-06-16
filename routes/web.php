@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LandingController;
 use App\Livewire\CreateWorkspace;
 use App\Livewire\Dashboard;
 use App\Livewire\DataTable;
@@ -11,12 +12,10 @@ use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [LandingController::class, 'index'])->name('home');
 
 // Routes DataTable - nécessitent un workspace
-Route::middleware(['workspace'])->group(function () {
+Route::middleware(['workspace', 'auth'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/data-table', DataTable::class)->name('data-table');
     Route::get('/upload', FileUpload::class)->name('upload');

@@ -112,20 +112,32 @@ class ImportHistoryRepository
      */
     public function getFileTypeStats(?\App\Models\Workspace $workspace = null): \Illuminate\Support\Collection
     {
-        $query = $this->model->selectRaw('
-                CASE 
-                    WHEN file_type = "text/csv" THEN "CSV"
-                    WHEN file_type LIKE "%spreadsheet%" OR file_type LIKE "%excel%" THEN "Excel"
-                    ELSE "Autre"
-                END as file_type,
-                COUNT(*) as count
-            ')
+        $query = $this->model->selectRaw('file_type, COUNT(*) as count')
             ->groupBy('file_type');
 
         if ($workspace) {
             $query->where('workspace_id', $workspace->id);
         }
 
-        return $query->get();
+        $results = $query->get();
+        
+        // Normaliser les types de fichiers pour l'affichage
+        return $results->map(function ($item) {
+            $normalizedType = match(strtolower($item->file_type)) {
+                'csv' => 'CSV',
+                'xlsx', 'xls' => 'Excel',
+                default => ucfirst($item->file_type)
+            };
+            
+            return (object) [
+                'file_type' => $normalizedType,
+                'count' => $item->count
+            ];
+        })->groupBy('file_type')->map(function ($items) {
+            return (object) [
+                'file_type' => $items->first()->file_type,
+                'count' => $items->sum('count')
+            ];
+        })->values();
     }
 }
