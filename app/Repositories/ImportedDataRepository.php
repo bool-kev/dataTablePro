@@ -70,9 +70,18 @@ class ImportedDataRepository
         return $importedData->delete();
     }
 
-    public function findById(int $id): ?ImportedData
+    public function findById(int $id, ?Workspace $workspace = null): ?ImportedData
     {
-        return $this->model->with('importHistory')->find($id);
+        $query = $this->model->with('importHistory');
+        
+        // Si un workspace est spécifié, vérifier que la ligne appartient à ce workspace
+        if ($workspace) {
+            $query->whereHas('importHistory', function (Builder $q) use ($workspace) {
+                $q->where('workspace_id', $workspace->id);
+            });
+        }
+        
+        return $query->find($id);
     }
 
     public function getUniqueColumns(?Workspace $workspace = null): array

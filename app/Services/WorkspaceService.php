@@ -95,6 +95,21 @@ class WorkspaceService
         return $this->workspaceRepository->removeUserFromWorkspace($workspace, $user);
     }
 
+    public function setCurrentWorkspace(User $user, Workspace $workspace): bool
+    {
+        return $this->switchWorkspace($user, $workspace);
+    }
+
+    public function findById(int $workspaceId): ?Workspace
+    {
+        return $this->workspaceRepository->findById($workspaceId);
+    }
+
+    public function getUserWorkspaces(User $user)
+    {
+        return $this->workspaceRepository->getUserWorkspaces($user);
+    }
+
     private function generateUniqueSlug(string $name): string
     {
         $baseSlug = Str::slug($name);

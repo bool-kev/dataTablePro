@@ -7,6 +7,7 @@ use App\Models\Workspace;
 use App\Repositories\ImportedDataRepository;
 use App\Services\ExportService;
 use App\Services\WorkspaceService;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
@@ -44,20 +45,34 @@ class DataTable extends Component
         'filterValue' => ['except' => ''],
     ];
 
-    public function boot(
-        ImportedDataRepository $importedDataRepository,
-        ExportService $exportService,
-        WorkspaceService $workspaceService
-    ) {
-        $this->importedDataRepository = $importedDataRepository;
-        $this->exportService = $exportService;
-        $this->workspaceService = $workspaceService;
+    public function boot()
+    {
+        \Log::info('DataTable boot() called (simplified)');
     }
 
     public function mount()
     {
-        $this->currentWorkspace = $this->workspaceService->getCurrentWorkspace(auth()->user());
-        $this->loadAvailableColumns();
+        \Log::info('DataTable mount() called - minimal version');
+        
+        try {
+            \Log::info('DataTable mount() step 1 - starting');
+            
+            // Test simple sans injection de services
+            $this->currentWorkspace = null;
+            $this->availableColumns = [];
+            
+            \Log::info('DataTable mount() step 2 - basic properties set');
+            
+            \Log::info('DataTable mount() completed successfully');
+        } catch (\Exception $e) {
+            \Log::error('DataTable mount() failed', [
+                'error' => $e->getMessage(), 
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
     
     public function loadAvailableColumns()
@@ -113,55 +128,79 @@ class DataTable extends Component
 
     public function deleteRow($id)
     {
-        $row = $this->importedDataRepository->findById($id);
+        $row = $this->importedDataRepository->findById($id, $this->currentWorkspace);
         
-        if ($row) {
+        // Vérifier que la ligne existe et que l'utilisateur a les permissions
+        if ($row && $this->currentWorkspace && 
+            $this->currentWorkspace->canUserAccess(Auth::user(), 'edit')) {
+            
             $this->importedDataRepository->delete($row);
             session()->flash('message', 'Ligne supprimée avec succès.');
+        } else {
+            session()->flash('error', 'Vous n\'avez pas les permissions pour supprimer cette ligne.');
         }
     }
 
     public function deleteSelected()
     {
+        if (!$this->currentWorkspace || !$this->currentWorkspace->canUserAccess(Auth::user(), 'edit')) {
+            session()->flash('error', 'Vous n\'avez pas les permissions pour supprimer ces lignes.');
+            return;
+        }
+
+        $deletedCount = 0;
         foreach ($this->selectedRows as $id) {
-            $row = $this->importedDataRepository->findById($id);
+            $row = $this->importedDataRepository->findById($id, $this->currentWorkspace);
             if ($row) {
                 $this->importedDataRepository->delete($row);
+                $deletedCount++;
             }
         }
         
         $this->selectedRows = [];
         $this->selectAll = false;
-        session()->flash('message', count($this->selectedRows) . ' lignes supprimées avec succès.');
+        session()->flash('message', "$deletedCount lignes supprimées avec succès.");
     }
 
     public function viewRow($id)
     {
-        $row = $this->importedDataRepository->findById($id);
+        $row = $this->importedDataRepository->findById($id, $this->currentWorkspace);
         
-        if ($row) {
+        // Vérifier que la ligne existe dans le workspace courant
+        if ($row && $this->currentWorkspace) {
             $this->modalData = $row->data;
             $this->showModal = true;
+        } else {
+            session()->flash('error', 'Ligne introuvable ou accès non autorisé.');
         }
     }
 
     public function editRow($id)
     {
-        $row = $this->importedDataRepository->findById($id);
+        $row = $this->importedDataRepository->findById($id, $this->currentWorkspace);
         
-        if ($row) {
+        // Vérifier les permissions d'édition et l'existence dans le workspace
+        if ($row && $this->currentWorkspace && 
+            $this->currentWorkspace->canUserAccess(Auth::user(), 'edit')) {
+            
             $this->editingRow = $row;
             $this->editData = $row->data;
+        } else {
+            session()->flash('error', 'Vous n\'avez pas les permissions pour éditer cette ligne.');
         }
     }
 
     public function saveEdit()
     {
-        if ($this->editingRow) {
+        if ($this->editingRow && $this->currentWorkspace && 
+            $this->currentWorkspace->canUserAccess(Auth::user(), 'edit')) {
+            
             $this->importedDataRepository->update($this->editingRow, ['data' => $this->editData]);
             $this->editingRow = null;
             $this->editData = [];
             session()->flash('message', 'Ligne modifiée avec succès.');
+        } else {
+            session()->flash('error', 'Vous n\'avez pas les permissions pour sauvegarder cette modification.');
         }
     }
 
@@ -211,8 +250,37 @@ class DataTable extends Component
         $this->resetPage();
     }
 
+    /**
+     * Changer de workspace en cours d'utilisation
+     */
+    public function switchWorkspace(Workspace $workspace)
+    {
+        // Vérifier les permissions d'accès au nouveau workspace
+        if (!$workspace->canUserAccess(Auth::user(), 'view')) {
+            session()->flash('error', 'Vous n\'avez pas accès à ce workspace.');
+            return;
+        }
+
+        $this->currentWorkspace = $workspace;
+        $this->workspaceService->setCurrentWorkspace(Auth::user(), $workspace);
+        
+        // Réinitialiser les filtres et la pagination
+        $this->reset(['search', 'filterColumn', 'filterValue', 'selectedRows', 'selectAll', 'editingRow']);
+        $this->resetPage();
+        
+        // Recharger les colonnes disponibles pour le nouveau workspace
+        $this->loadAvailableColumns();
+        
+        session()->flash('message', "Workspace '{$workspace->name}' sélectionné.");
+    }
+
     public function getData()
     {
+        // S'assurer que nous avons un workspace courant
+        if (!$this->currentWorkspace) {
+            return collect();
+        }
+
         // Préparation des filtres
         $filters = [];
         $searchValue = null;
@@ -240,6 +308,50 @@ class DataTable extends Component
             $filters,
             $this->currentWorkspace
         );
+    }
+
+    /**
+     * Obtenir des statistiques sur le workspace courant
+     */
+    public function getWorkspaceStats()
+    {
+        if (!$this->currentWorkspace) {
+            return [
+                'total_rows' => 0,
+                'total_imports' => 0,
+                'total_columns' => 0,
+            ];
+        }
+
+        return [
+            'total_rows' => $this->importedDataRepository->count($this->currentWorkspace),
+            'total_imports' => $this->currentWorkspace->importHistories()->count(),
+            'total_columns' => count($this->availableColumns),
+        ];
+    }
+
+    /**
+     * Vérifier si l'utilisateur peut effectuer une action sur le workspace courant
+     */
+    public function canPerformAction(string $action): bool
+    {
+        if (!$this->currentWorkspace) {
+            return false;
+        }
+
+        return $this->currentWorkspace->canUserAccess(Auth::user(), $action);
+    }
+
+    /**
+     * Événement déclenché quand un workspace est changé depuis un autre composant
+     */
+    #[On('workspace-changed')]
+    public function onWorkspaceChanged($workspaceId)
+    {
+        $workspace = $this->workspaceService->findById($workspaceId);
+        if ($workspace) {
+            $this->switchWorkspace($workspace);
+        }
     }
 
     public function getColumns()
