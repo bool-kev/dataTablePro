@@ -1,4 +1,4 @@
-# DataTable - Application Laravel + Livewire 3
+# DataTable Pro - Application Laravel + Livewire 3
 
 Une application Laravel moderne avec Livewire 3 qui permet aux utilisateurs de créer plusieurs espaces de travail (workspaces), télécharger des fichiers CSV/Excel, les analyser et stocker chaque ligne sous forme de JSON dans une base de données. 
 
@@ -237,4 +237,4 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ---
 
-**Développé avec ❤️ par l'équipe DataTable**
+**Développé avec ❤️ par l'équipe DataTable Pro**

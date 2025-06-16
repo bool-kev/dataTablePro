@@ -85,7 +85,7 @@
             <flux:spacer />
 
             <flux:navlist variant="outline">
-                <a href="https://github.com/laravel/livewire-starter-kit" 
+                <a href="https://github.com/your-username/datatable-pro" 
                    target="_blank"
                    class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900">
                     <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +94,7 @@
                     {{ __('Repository') }}
                 </a>
 
-                <a href="https://laravel.com/docs/starter-kits#livewire" 
+                <a href="https://github.com/your-username/datatable-pro/wiki" 
                    target="_blank"
                    class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900">
                     <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

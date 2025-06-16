@@ -1,11 +1,15 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "datatable-pro/app",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "DataTable Pro - Application moderne de gestion de données avec Laravel + Livewire 3.",
     "keywords": [
         "laravel",
-        "framework"
+        "livewire",
+        "datatable",
+        "csv",
+        "excel",
+        "data-management"
     ],
     "license": "MIT",
     "require": {
