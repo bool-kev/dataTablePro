@@ -17,7 +17,7 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 // Routes DataTable - nécessitent un workspace
 Route::middleware(['workspace', 'auth'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
-    Route::get('/data-table', DataTable::class)->name('data-table');
+    Route::get('/data-table/{workspace?}', DataTable::class)->name('data-table');
     Route::get('/upload', FileUpload::class)->name('upload');
     Route::get('/import-history', ImportHistory::class)->name('import-history');
 });

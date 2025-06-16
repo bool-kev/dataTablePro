@@ -45,34 +45,28 @@ class DataTable extends Component
         'filterValue' => ['except' => ''],
     ];
 
-    public function boot()
-    {
-        \Log::info('DataTable boot() called (simplified)');
+    public function boot(
+        ImportedDataRepository $importedDataRepository,
+        ExportService $exportService,
+        WorkspaceService $workspaceService
+    ) {
+        $this->importedDataRepository = $importedDataRepository;
+        $this->exportService = $exportService;
+        $this->workspaceService = $workspaceService;
     }
 
-    public function mount()
+    public function mount($workspace = null)
     {
-        \Log::info('DataTable mount() called - minimal version');
         
-        try {
-            \Log::info('DataTable mount() step 1 - starting');
-            
-            // Test simple sans injection de services
-            $this->currentWorkspace = null;
-            $this->availableColumns = [];
-            
-            \Log::info('DataTable mount() step 2 - basic properties set');
-            
-            \Log::info('DataTable mount() completed successfully');
-        } catch (\Exception $e) {
-            \Log::error('DataTable mount() failed', [
-                'error' => $e->getMessage(), 
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            throw $e;
+        // Si un workspace spécifique est passé, l'utiliser, sinon utiliser le workspace courant
+        $this->currentWorkspace = $workspace ? Workspace::findOrFail($workspace) : $this->workspaceService->getCurrentWorkspace(Auth::user());
+
+        // Vérifier les permissions d'accès au workspace
+        if ($this->currentWorkspace && !$this->currentWorkspace->canUserAccess(Auth::user(), 'view')) {
+            abort(403, 'Vous n\'avez pas accès à ce workspace.');
         }
+        
+        $this->loadAvailableColumns();
     }
     
     public function loadAvailableColumns()
