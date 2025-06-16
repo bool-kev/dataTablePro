@@ -33,20 +33,21 @@ class ImportedDataRepository
 
         if ($search) {
             $query->where(function (Builder $q) use ($search) {
-                $q->whereRaw("JSON_SEARCH(data, 'all', ?) IS NOT NULL", ["%{$search}%"]);
+                // SQLite compatible search - search in the entire JSON as text
+                $q->where('data', 'LIKE', "%{$search}%");
             });
         }
 
         // Filtres par colonnes spécifiques
         foreach ($filters as $column => $value) {
             if (!empty($value)) {
-                $query->whereRaw("JSON_EXTRACT(data, '$.{$column}') LIKE ?", ["%{$value}%"]);
+                $query->whereRaw("json_extract(data, ?) LIKE ?", ['$.' . $column, "%{$value}%"]);
             }
         }
 
         if ($sortBy && $sortBy !== 'id') {
-            // Tri par colonne JSON
-            $query->orderByRaw("JSON_EXTRACT(data, '$.{$sortBy}') {$sortDirection}");
+            // Tri par colonne JSON (SQLite compatible)
+            $query->orderByRaw("json_extract(data, ?) {$sortDirection}", ['$.' . $sortBy]);
         } else {
             $query->orderBy($sortBy ?: 'id', $sortDirection);
         }
@@ -120,7 +121,7 @@ class ImportedDataRepository
 
         foreach ($filters as $column => $value) {
             if (!empty($value)) {
-                $query->whereRaw("JSON_EXTRACT(data, '$.{$column}') LIKE ?", ["%{$value}%"]);
+                $query->whereRaw("json_extract(data, ?) LIKE ?", ['$.' . $column, "%{$value}%"]);
             }
         }
 
