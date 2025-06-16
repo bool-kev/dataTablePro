@@ -19,7 +19,6 @@ class DataTable extends Component
     public $sortBy = 'id';
     public $sortDirection = 'desc';
     public $perPage = 15;
-    public $filters = [];
     public $selectedRows = [];
     public $selectAll = false;
     public $showModal = false;
@@ -27,6 +26,11 @@ class DataTable extends Component
     public $editingRow = null;
     public $editData = [];
     public $currentWorkspace = null;
+    
+    // Propriétés pour le filtrage unifié
+    public $filterColumn = 'all'; // 'all' pour toutes les colonnes ou nom de colonne spécifique
+    public $filterValue = '';
+    public $availableColumns = [];
 
     protected ImportedDataRepository $importedDataRepository;
     protected ExportService $exportService;
@@ -36,6 +40,8 @@ class DataTable extends Component
         'search' => ['except' => ''],
         'sortBy' => ['except' => 'id'],
         'sortDirection' => ['except' => 'desc'],
+        'filterColumn' => ['except' => 'all'],
+        'filterValue' => ['except' => ''],
     ];
 
     public function boot(
@@ -50,8 +56,15 @@ class DataTable extends Component
 
     public function mount()
     {
-        $this->filters = [];
         $this->currentWorkspace = $this->workspaceService->getCurrentWorkspace(auth()->user());
+        $this->loadAvailableColumns();
+    }
+    
+    public function loadAvailableColumns()
+    {
+        if ($this->currentWorkspace) {
+            $this->availableColumns = $this->importedDataRepository->getUniqueColumns($this->currentWorkspace);
+        }
     }
 
     public function updatedSearch()
@@ -59,8 +72,22 @@ class DataTable extends Component
         $this->resetPage();
     }
 
-    public function updatedFilters()
+    public function updatedFilterColumn()
     {
+        $this->filterValue = '';
+        $this->resetPage();
+    }
+
+    public function updatedFilterValue()
+    {
+        $this->resetPage();
+    }
+    
+    public function clearFilter()
+    {
+        $this->filterColumn = 'all';
+        $this->filterValue = '';
+        $this->search = '';
         $this->resetPage();
     }
 
@@ -147,7 +174,13 @@ class DataTable extends Component
     public function exportCsv()
     {
         try {
-            $filename = $this->exportService->exportToCsv($this->filters, $this->currentWorkspace);
+            // Préparer les filtres pour l'export
+            $filters = [];
+            if ($this->filterColumn !== 'all' && !empty($this->filterValue)) {
+                $filters[$this->filterColumn] = $this->filterValue;
+            }
+            
+            $filename = $this->exportService->exportToCsv($filters, $this->currentWorkspace);
             session()->flash('message', 'Export CSV créé: ' . $filename);
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de l\'export: ' . $e->getMessage());
@@ -157,7 +190,13 @@ class DataTable extends Component
     public function exportExcel()
     {
         try {
-            $filename = $this->exportService->exportToExcel($this->filters, $this->currentWorkspace);
+            // Préparer les filtres pour l'export
+            $filters = [];
+            if ($this->filterColumn !== 'all' && !empty($this->filterValue)) {
+                $filters[$this->filterColumn] = $this->filterValue;
+            }
+            
+            $filename = $this->exportService->exportToExcel($filters, $this->currentWorkspace);
             session()->flash('message', 'Export Excel créé: ' . $filename);
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de l\'export: ' . $e->getMessage());
@@ -168,17 +207,37 @@ class DataTable extends Component
     public function refreshData()
     {
         // Rafraîchir les données après un import
+        $this->loadAvailableColumns();
         $this->resetPage();
     }
 
     public function getData()
     {
+        // Préparation des filtres
+        $filters = [];
+        $searchValue = null;
+        
+        // Si on filtre par une colonne spécifique
+        if ($this->filterColumn !== 'all' && !empty($this->filterValue)) {
+            $filters[$this->filterColumn] = $this->filterValue;
+        }
+        
+        // Si on fait une recherche globale (toutes les colonnes)
+        if ($this->filterColumn === 'all' && !empty($this->filterValue)) {
+            $searchValue = $this->filterValue;
+        }
+        
+        // Support pour l'ancienne recherche globale (pour compatibilité)
+        if (!empty($this->search)) {
+            $searchValue = $this->search;
+        }
+        
         return $this->importedDataRepository->paginate(
             $this->perPage,
-            $this->search,
+            $searchValue,
             $this->sortBy,
             $this->sortDirection,
-            $this->filters,
+            $filters,
             $this->currentWorkspace
         );
     }
@@ -193,6 +252,7 @@ class DataTable extends Component
         return view('livewire.data-table', [
             'data' => $this->getData(),
             'columns' => $this->getColumns(),
+            'availableColumns' => $this->availableColumns,
         ]);
     }
 }

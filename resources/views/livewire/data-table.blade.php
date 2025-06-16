@@ -1,13 +1,48 @@
 <div class="space-y-6">
-    {{-- Barre de recherche et filtres --}}
+    {{-- Barre de filtrage unifiée --}}
     <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="flex-1 max-w-md">
-            <input 
-                type="text" 
-                wire:model.live="search" 
-                placeholder="Rechercher dans toutes les colonnes..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
+        <div class="flex flex-col md:flex-row gap-4 flex-1 max-w-2xl">
+            <div class="flex-shrink-0">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Rechercher dans</label>
+                <select 
+                    wire:model.live="filterColumn" 
+                    class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                    <option value="all">Toutes les colonnes</option>
+                    @foreach($availableColumns as $column)
+                        <option value="{{ $column }}">{{ $column }}</option>
+                    @endforeach
+                </select>
+            </div>
+            
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    @if($filterColumn === 'all')
+                        Recherche globale
+                    @else
+                        Rechercher dans "{{ $filterColumn }}"
+                    @endif
+                </label>
+                <div class="flex gap-2">
+                    <input 
+                        type="text" 
+                        wire:model.live="filterValue" 
+                        placeholder="@if($filterColumn === 'all') Rechercher dans toutes les colonnes... @else Rechercher dans {{ $filterColumn }}... @endif"
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                    @if(!empty($filterValue))
+                        <button 
+                            wire:click="clearFilter" 
+                            class="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 flex items-center"
+                            title="Effacer le filtre"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    @endif
+                </div>
+            </div>
         </div>
         
         <div class="flex gap-2">
@@ -36,23 +71,6 @@
             </button>
         </div>
     </div>
-
-    {{-- Filtres par colonnes --}}
-    @if(count($columns) > 0)
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
-            @foreach($columns as $column)
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ $column }}</label>
-                    <input 
-                        type="text" 
-                        wire:model.live="filters.{{ $column }}" 
-                        placeholder="Filtrer {{ $column }}..."
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                </div>
-            @endforeach
-        </div>
-    @endif
 
     {{-- Messages flash --}}
     @if (session()->has('message'))
