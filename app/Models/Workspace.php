@@ -60,6 +60,16 @@ class Workspace extends Model
         return $this->hasMany(ImportedData::class)->through('importHistories');
     }
 
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(WorkspaceInvitation::class);
+    }
+
+    public function pendingInvitations(): HasMany
+    {
+        return $this->hasMany(WorkspaceInvitation::class)->where('status', 'pending');
+    }
+
     public function canUserAccess(User $user, string $permission = 'view'): bool
     {
         if ($this->owner_id === $user->id) {
