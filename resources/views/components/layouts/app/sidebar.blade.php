@@ -30,8 +30,8 @@
                 </flux:navlist.group>
                 
                 <flux:navlist.group :heading="__('Data Management')" class="grid">
-                    <flux:navlist.item icon="table" :href="route('data-table')" :current="request()->routeIs('data-table')" wire:navigate>{{ __('Data Table') }}</flux:navlist.item>
-                    <flux:navlist.item icon="upload" :href="route('upload')" :current="request()->routeIs('upload')" wire:navigate>{{ __('Upload Files') }}</flux:navlist.item>
+                    <flux:navlist.item icon="folder" :href="route('data-table')" :current="request()->routeIs('data-table')" wire:navigate>{{ __('Data Table') }}</flux:navlist.item>
+                    <flux:navlist.item icon="folder" :href="route('upload')" :current="request()->routeIs('upload')" wire:navigate>{{ __('Upload Files') }}</flux:navlist.item>
                     <flux:navlist.item icon="clock" :href="route('import-history')" :current="request()->routeIs('import-history')" wire:navigate>{{ __('Import History') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>

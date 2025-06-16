@@ -17,7 +17,9 @@
 
     @if(!$currentWorkspace)
         <div class="text-center py-12">
-            <flux:icon.folder class="mx-auto h-12 w-12 text-gray-400" />
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+            </svg>
             <h3 class="mt-2 text-lg font-medium text-gray-900">Aucun workspace sélectionné</h3>
             <p class="mt-1 text-sm text-gray-500">
                 Créez ou sélectionnez un workspace pour voir vos données.
@@ -28,7 +30,9 @@
                     class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                     wire:navigate
                 >
-                    <flux:icon.plus class="-ml-1 mr-2 h-4 w-4" />
+                    <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
                     Créer un workspace
                 </a>
             </div>
@@ -40,7 +44,9 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <flux:icon.table class="h-6 w-6 text-gray-400" />
+                            <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                            </svg>
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
@@ -60,7 +66,9 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <flux:icon.upload class="h-6 w-6 text-green-400" />
+                            <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
@@ -80,7 +88,9 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <flux:icon.x-circle class="h-6 w-6 text-red-400" />
+                            <svg class="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
@@ -100,7 +110,9 @@
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <flux:icon.database class="h-6 w-6 text-blue-400" />
+                            <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                            </svg>
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
@@ -151,11 +163,17 @@
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0">
                                             @if($import->status === 'completed')
-                                                <flux:icon.check-circle class="h-5 w-5 text-green-400" />
+                                                <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
                                             @elseif($import->status === 'failed')
-                                                <flux:icon.x-circle class="h-5 w-5 text-red-400" />
+                                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
                                             @else
-                                                <flux:icon.clock class="h-5 w-5 text-yellow-400" />
+                                                <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
                                             @endif
                                         </div>
                                         <div class="ml-3">
@@ -199,7 +217,9 @@
                         class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                         wire:navigate
                     >
-                        <flux:icon.upload class="h-5 w-5 text-blue-500 mr-3" />
+                        <svg class="h-5 w-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
                         <div>
                             <p class="text-sm font-medium text-gray-900">Importer des fichiers</p>
                             <p class="text-xs text-gray-500">CSV, Excel (XLSX, XLS)</p>
@@ -211,7 +231,9 @@
                         class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                         wire:navigate
                     >
-                        <flux:icon.table class="h-5 w-5 text-green-500 mr-3" />
+                        <svg class="h-5 w-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                        </svg>
                         <div>
                             <p class="text-sm font-medium text-gray-900">Consulter les données</p>
                             <p class="text-xs text-gray-500">Table interactive avec filtres</p>
@@ -223,7 +245,9 @@
                         class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                         wire:navigate
                     >
-                        <flux:icon.folder class="h-5 w-5 text-purple-500 mr-3" />
+                        <svg class="h-5 w-5 text-purple-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                        </svg>
                         <div>
                             <p class="text-sm font-medium text-gray-900">Gérer les workspaces</p>
                             <p class="text-xs text-gray-500">Créer, modifier, partager</p>
