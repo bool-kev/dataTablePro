@@ -57,7 +57,6 @@ class FileUpload extends Component
             return;
         }
 
-        $this->validate();
 
         $this->uploading = true;
         $this->progress = 0;
@@ -84,6 +83,8 @@ class FileUpload extends Component
             
             // Reset
             $this->reset(['file', 'uploading', 'progress']);
+
+            return redirect()->route('data-table');
 
         } catch (\Exception $e) {
             $this->progress = 0;

@@ -111,7 +111,7 @@ class ImportedDataRepository
         return $this->model->where('import_history_id', $importHistoryId)->get();
     }
 
-    public function exportData(array $filters = [], ?Workspace $workspace = null): Collection
+    public function exportData(array $filters = [], ?Workspace $workspace = null, ?string $search = null): Collection
     {
         $query = $this->model->with('importHistory');
 
@@ -120,6 +120,15 @@ class ImportedDataRepository
             $query->forWorkspace($workspace);
         }
 
+        // Recherche globale dans toutes les colonnes
+        if ($search) {
+            $query->where(function (Builder $q) use ($search) {
+                // SQLite compatible search - search in the entire JSON as text
+                $q->where('data', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filtres par colonnes spécifiques
         foreach ($filters as $column => $value) {
             if (!empty($value)) {
                 $query->whereRaw("json_extract(data, ?) LIKE ?", ['$.' . $column, "%{$value}%"]);

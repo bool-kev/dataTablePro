@@ -212,13 +212,26 @@ class DataTable extends Component
     public function exportCsv()
     {
         try {
-            // Préparer les filtres pour l'export
+            // Préparer les filtres pour l'export (même logique que getData())
             $filters = [];
+            $searchValue = null;
+            
+            // Si on filtre par une colonne spécifique
             if ($this->filterColumn !== 'all' && !empty($this->filterValue)) {
                 $filters[$this->filterColumn] = $this->filterValue;
             }
             
-            $filename = $this->exportService->exportToCsv($filters, $this->currentWorkspace);
+            // Si on fait une recherche globale (toutes les colonnes)
+            if ($this->filterColumn === 'all' && !empty($this->filterValue)) {
+                $searchValue = $this->filterValue;
+            }
+            
+            // Support pour l'ancienne recherche globale (pour compatibilité)
+            if (!empty($this->search)) {
+                $searchValue = $this->search;
+            }
+            
+            $filename = $this->exportService->exportToCsv($filters, $this->currentWorkspace, $searchValue);
             
             // Redirection vers le téléchargement
             return $this->redirect(route('download.export', ['filename' => $filename]));
@@ -230,13 +243,26 @@ class DataTable extends Component
     public function exportExcel()
     {
         try {
-            // Préparer les filtres pour l'export
+            // Préparer les filtres pour l'export (même logique que getData())
             $filters = [];
+            $searchValue = null;
+            
+            // Si on filtre par une colonne spécifique
             if ($this->filterColumn !== 'all' && !empty($this->filterValue)) {
                 $filters[$this->filterColumn] = $this->filterValue;
             }
             
-            $filename = $this->exportService->exportToExcel($filters, $this->currentWorkspace);
+            // Si on fait une recherche globale (toutes les colonnes)
+            if ($this->filterColumn === 'all' && !empty($this->filterValue)) {
+                $searchValue = $this->filterValue;
+            }
+            
+            // Support pour l'ancienne recherche globale (pour compatibilité)
+            if (!empty($this->search)) {
+                $searchValue = $this->search;
+            }
+            
+            $filename = $this->exportService->exportToExcel($filters, $this->currentWorkspace, $searchValue);
             
             // Redirection vers le téléchargement
             return $this->redirect(route('download.export', ['filename' => $filename]));
@@ -248,13 +274,26 @@ class DataTable extends Component
     public function exportJson()
     {
         try {
-            // Préparer les filtres pour l'export
+            // Préparer les filtres pour l'export (même logique que getData())
             $filters = [];
+            $searchValue = null;
+            
+            // Si on filtre par une colonne spécifique
             if ($this->filterColumn !== 'all' && !empty($this->filterValue)) {
                 $filters[$this->filterColumn] = $this->filterValue;
             }
             
-            $filename = $this->exportService->exportToJson($filters, $this->currentWorkspace);
+            // Si on fait une recherche globale (toutes les colonnes)
+            if ($this->filterColumn === 'all' && !empty($this->filterValue)) {
+                $searchValue = $this->filterValue;
+            }
+            
+            // Support pour l'ancienne recherche globale (pour compatibilité)
+            if (!empty($this->search)) {
+                $searchValue = $this->search;
+            }
+            
+            $filename = $this->exportService->exportToJson($filters, $this->currentWorkspace, $searchValue);
             
             // Redirection vers le téléchargement
             return $this->redirect(route('download.export', ['filename' => $filename]));

@@ -16,9 +16,9 @@ class ExportService
         private ImportedDataRepository $importedDataRepository
     ) {}
 
-    public function exportToCsv(array $filters = [], ?Workspace $workspace = null): string
+    public function exportToCsv(array $filters = [], ?Workspace $workspace = null, ?string $search = null): string
     {
-        $data = $this->importedDataRepository->exportData($filters, $workspace);
+        $data = $this->importedDataRepository->exportData($filters, $workspace, $search);
         
         if ($data->isEmpty()) {
             throw new \Exception('Aucune donnée à exporter');
@@ -53,9 +53,9 @@ class ExportService
         return $filename;
     }
 
-    public function exportToExcel(array $filters = [], ?Workspace $workspace = null): string
+    public function exportToExcel(array $filters = [], ?Workspace $workspace = null, ?string $search = null): string
     {
-        $data = $this->importedDataRepository->exportData($filters, $workspace);
+        $data = $this->importedDataRepository->exportData($filters, $workspace, $search);
         
         if ($data->isEmpty()) {
             throw new \Exception('Aucune donnée à exporter');
@@ -125,9 +125,9 @@ class ExportService
         ];
     }
 
-    public function exportToJson(array $filters = [], ?Workspace $workspace = null): string
+    public function exportToJson(array $filters = [], ?Workspace $workspace = null, ?string $search = null): string
     {
-        $data = $this->importedDataRepository->exportData($filters, $workspace);
+        $data = $this->importedDataRepository->exportData($filters, $workspace, $search);
         
         if ($data->isEmpty()) {
             throw new \Exception('Aucune donnée à exporter');
