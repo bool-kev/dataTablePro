@@ -19,8 +19,8 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 // Workspace invitation routes (public)
 Route::prefix('invitation')->name('workspace.invitation.')->group(function () {
     Route::get('{token}', [WorkspaceInvitationController::class, 'show'])->name('show');
-    Route::post('{token}/accept', [WorkspaceInvitationController::class, 'accept'])->name('accept');
-    Route::post('{token}/decline', [WorkspaceInvitationController::class, 'decline'])->name('decline');
+    Route::get('{token}/accept', [WorkspaceInvitationController::class, 'accept'])->name('accept');
+    Route::get('{token}/decline', [WorkspaceInvitationController::class, 'decline'])->name('decline');
 });
 
 // Process invitation after login
@@ -35,6 +35,10 @@ Route::middleware(['workspace', 'auth'])->group(function () {
     Route::get('/collaboration', function() {
         return view('collaboration');
     })->name('collaboration');
+
+    // Download routes
+    Route::get('/download/export', [DownloadController::class, 'downloadExport'])->name('download.export');
+
 });
 
 // Routes Workspace - pas besoin de workspace sélectionné
