@@ -50,30 +50,42 @@
                 <button 
                     wire:click="deleteSelected" 
                     wire:confirm="Êtes-vous sûr de vouloir supprimer les lignes sélectionnées ?"
-                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
                 >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
                     Supprimer ({{ count($selectedRows) }})
                 </button>
             @endif
             
             <button 
                 wire:click="exportCsv" 
-                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
             >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
                 Export CSV
             </button>
             
             <button 
                 wire:click="exportExcel" 
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
             >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
                 Export Excel
             </button>
             
             <button 
                 wire:click="exportJson" 
-                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
             >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                </svg>
                 Export JSON
             </button>
         </div>
@@ -104,14 +116,16 @@
                             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         >
                     </th>
-                    <th wire:click="sortBy('id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                        ID
-                        @if($sortBy === 'id')
-                            <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
-                        @endif
-                    </th>
-                    @foreach($columns as $column)
-                        <th wire:click="sortBy('{{ $column }}')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    @if (! in_array('id', $columns))
+                        <th wire:click="sortBy('id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            ID
+                            @if($sortBy === 'id')
+                                <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </th>
+                    @endif
+                    @foreach($columns as $index => $column)
+                        <th wire:click="sortByColumn('{{ $column }}')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                             {{ $column }}
                             @if($sortBy === $column)
                                 <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
@@ -134,9 +148,12 @@
                                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                             >
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ $row->id }}
-                        </td>
+                        @if ( ! in_array('id', $columns))
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ $row->id }}
+                            </td>
+                        @endif
+                        {{-- Dynamically render columns --}}
                         @foreach($columns as $column)
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 @if($editingRow && $editingRow->id === $row->id)
@@ -150,20 +167,60 @@
                                 @endif
                             </td>
                         @endforeach
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             @if($editingRow && $editingRow->id === $row->id)
-                                <button wire:click="saveEdit" class="text-green-600 hover:text-green-900">Sauver</button>
-                                <button wire:click="cancelEdit" class="text-gray-600 hover:text-gray-900">Annuler</button>
+                                <div class="flex items-center space-x-2">
+                                    <button 
+                                        wire:click="saveEdit" 
+                                        class="inline-flex items-center justify-center w-8 h-8 text-green-600 hover:text-white hover:bg-green-600 rounded-full transition-colors duration-200 cursor-pointer"
+                                        title="Sauvegarder"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </button>
+                                    <button 
+                                        wire:click="cancelEdit" 
+                                        class="inline-flex items-center justify-center w-8 h-8 text-gray-600 hover:text-white hover:bg-gray-600 rounded-full transition-colors duration-200 cursor-pointer"
+                                        title="Annuler"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             @else
-                                <button wire:click="viewRow({{ $row->id }})" class="text-blue-600 hover:text-blue-900">Voir</button>
-                                <button wire:click="editRow({{ $row->id }})" class="text-indigo-600 hover:text-indigo-900">Éditer</button>
-                                <button 
-                                    wire:click="deleteRow({{ $row->id }})" 
-                                    wire:confirm="Êtes-vous sûr de vouloir supprimer cette ligne ?"
-                                    class="text-red-600 hover:text-red-900"
-                                >
-                                    Supprimer
-                                </button>
+                                <div class="flex items-center space-x-1">
+                                    <button 
+                                        wire:click="viewRow({{ $row->id }})" 
+                                        class="inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:text-white hover:bg-blue-600 rounded-full transition-colors duration-200 cursor-pointer"
+                                        title="Voir les détails"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </button>
+                                    <button 
+                                        wire:click="editRow({{ $row->id }})" 
+                                        class="inline-flex items-center justify-center w-8 h-8 text-indigo-600 hover:text-white hover:bg-indigo-600 rounded-full transition-colors duration-200 cursor-pointer"
+                                        title="Éditer"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    </button>
+                                    <button 
+                                        wire:click="deleteRow({{ $row->id }})" 
+                                        wire:confirm="Êtes-vous sûr de vouloir supprimer cette ligne ?"
+                                        class="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-black hover:bg-red-600 rounded-full transition-colors duration-200 cursor-pointer"
+                                        title="Supprimer"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             @endif
                         </td>
                     </tr>

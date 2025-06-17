@@ -110,6 +110,11 @@ class DataTable extends Component
         }
         $this->resetPage();
     }
+    
+    public function sortByColumn($column)
+    {
+        return $this->sortBy($column);
+    }
 
     public function updatedSelectAll($value)
     {
