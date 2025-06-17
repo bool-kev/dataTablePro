@@ -60,4 +60,4 @@ class WorkspaceInvitationMail extends Mailable
         return [];
     }
 }
-}
+

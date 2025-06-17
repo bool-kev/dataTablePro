@@ -17,12 +17,18 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'user@test.com',
         ]);
 
+        User::factory()->create([
+            'name' => 'Test User 2',
+            'email' => 'admin@test.com',
+        ]);
+        
+
         $this->call([
-            WorkspaceSeeder::class,
-            ImportedDataSeeder::class,
+            // WorkspaceSeeder::class,
+            // ImportedDataSeeder::class
         ]);
     }
 }

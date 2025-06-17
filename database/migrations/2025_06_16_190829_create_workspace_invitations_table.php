@@ -23,7 +23,6 @@ return new class extends Migration
             $table->timestamp('accepted_at')->nullable();
             $table->timestamps();
             
-            $table->unique(['workspace_id', 'email']);
             $table->index(['token']);
             $table->index(['email', 'status']);
         });

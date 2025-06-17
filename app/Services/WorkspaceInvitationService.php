@@ -19,7 +19,10 @@ class WorkspaceInvitationService
     {
         // Check if user is already a member
         $existingUser = User::where('email', $email)->first();
-        if ($existingUser && $workspace->users()->where('user_id', $existingUser->id)->exists()) {
+        if (! $existingUser) {
+            throw new \Exception('User has not acount.');
+        }
+        if ($workspace->users()->where('user_id', $existingUser->id)->exists()) {
             throw new \Exception('User is already a member of this workspace.');
         }
 
