@@ -14,11 +14,13 @@ test('confirm password screen can be rendered', function () {
 
 test('password can be confirmed', function () {
     $user = User::factory()->create();
+    $workspace = \App\Models\Workspace::factory()->create(['owner_id' => $user->id]);
+    $workspace->users()->attach($user, ['role' => 'owner']);
 
     $this->actingAs($user);
 
     $response = Livewire::test(ConfirmPassword::class)
-        ->set('password', 'password')
+        ->set('password', 'kali')
         ->call('confirmPassword');
 
     $response

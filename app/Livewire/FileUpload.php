@@ -20,12 +20,12 @@ class FileUpload extends Component
     protected WorkspaceService $workspaceService;
 
     protected $rules = [
-        'file' => 'required|file|mimes:csv,xlsx,xls|max:10240', // 10MB max
+        'file' => 'required|file|mimes:csv,xlsx,xls,tsv|max:10240', // 10MB max
     ];
 
     protected $messages = [
         'file.required' => 'Veuillez sélectionner un fichier.',
-        'file.mimes' => 'Le fichier doit être au format CSV, XLSX ou XLS.',
+        'file.mimes' => 'Le fichier doit être au format CSV, XLSX, XLS ou TSV.',
         'file.max' => 'Le fichier ne doit pas dépasser 10 MB.',
     ];
 

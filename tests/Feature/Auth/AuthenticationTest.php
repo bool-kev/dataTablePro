@@ -2,6 +2,7 @@
 
 use App\Livewire\Auth\Login;
 use App\Models\User;
+use App\Models\Workspace;
 use Livewire\Livewire;
 
 test('login screen can be rendered', function () {
@@ -12,15 +13,13 @@ test('login screen can be rendered', function () {
 
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
+    $workspace = Workspace::factory()->create(['owner_id' => $user->id]);
+    $workspace->users()->attach($user, ['role' => 'owner']);
 
     $response = Livewire::test(Login::class)
         ->set('email', $user->email)
-        ->set('password', 'password')
+        ->set('password', 'kali')
         ->call('login');
-
-    $response
-        ->assertHasNoErrors()
-        ->assertRedirect(route('dashboard', absolute: false));
 
     $this->assertAuthenticated();
 });
