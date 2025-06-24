@@ -1,0 +1,333 @@
+/* Auth Responsive Styles */
+
+/* Base auth form styles */
+.auth-form {
+    width: 100%;
+    max-width: 420px;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.auth-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.auth-form-group label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.auth-form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #ffffff;
+}
+
+.auth-form-group input:focus {
+    outline: none;
+    border-color: #2684FF;
+    box-shadow: 0 0 0 3px rgba(38, 132, 255, 0.1);
+}
+
+.auth-form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.auth-form-remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.auth-form-remember label {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin: 0;
+}
+
+.auth-form-submit {
+    width: 100%;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, #2684FF 0%, #0052CC 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
+}
+
+.auth-form-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(38, 132, 255, 0.4);
+}
+
+.auth-form-submit:active {
+    transform: translateY(0);
+}
+
+.auth-form-links {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.auth-form-links a {
+    color: #2684FF;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.auth-form-links a:hover {
+    color: #0052CC;
+    text-decoration: underline;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Auth layout container */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+    .auth-container {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+    
+    .auth-form {
+        background: #1e293b;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .auth-header h1 {
+        color: #f1f5f9;
+    }
+    
+    .auth-header p {
+        color: #94a3b8;
+    }
+    
+    .auth-form-group label {
+        color: #f1f5f9;
+    }
+    
+    .auth-form-group input {
+        background: #334155;
+        border-color: #475569;
+        color: #f1f5f9;
+    }
+    
+    .auth-form-group input:focus {
+        border-color: #2684FF;
+        box-shadow: 0 0 0 3px rgba(38, 132, 255, 0.2);
+    }
+    
+    .auth-form-group input::placeholder {
+        color: #64748b;
+    }
+    
+    .auth-form-remember label {
+        color: #cbd5e1;
+    }
+    
+    .auth-form-links {
+        color: #94a3b8;
+    }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 640px) {
+    .auth-container {
+        padding: 0.75rem;
+    }
+    
+    .auth-form {
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .auth-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .auth-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .auth-header p {
+        font-size: 0.8rem;
+    }
+    
+    .auth-form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .auth-form-group input {
+        padding: 0.625rem;
+        font-size: 0.95rem;
+    }
+    
+    .auth-form-submit {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .auth-form-links {
+        font-size: 0.8rem;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 0.5rem;
+    }
+    
+    .auth-form {
+        padding: 1.25rem;
+        margin: 0;
+    }
+    
+    .auth-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .auth-form-group input {
+        padding: 0.5rem;
+    }
+    
+    .auth-form-submit {
+        padding: 0.625rem;
+    }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+    .auth-form {
+        max-width: 480px;
+        padding: 2.5rem;
+    }
+    
+    .auth-header h1 {
+        font-size: 2rem;
+    }
+    
+    .auth-header p {
+        font-size: 1rem;
+    }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 896px) and (orientation: landscape) {
+    .auth-container {
+        align-items: flex-start;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    
+    .auth-form {
+        margin: 0 auto;
+    }
+    
+    .auth-header {
+        margin-bottom: 1rem;
+    }
+    
+    .auth-form-group {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .auth-form-group input {
+        padding: 0.875rem;
+        font-size: 1rem;
+    }
+    
+    .auth-form-submit {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+    
+    /* Increase touch targets */
+    .auth-form-remember input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .auth-form-links a {
+        padding: 0.25rem;
+        margin: -0.25rem;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .auth-form {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .auth-form-group input,
+    .auth-form-submit,
+    .auth-form-links a {
+        transition: none;
+    }
+    
+    .auth-form-submit:hover {
+        transform: none;
+    }
+}

@@ -3,7 +3,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
     <title>DataTable Pro - Plateforme d'Analyse de Données Collaborative</title>
     <meta name="description" content="Importez, analysez et collaborez sur vos données avec DataTable Pro. Solution complète pour l'analyse de fichiers CSV et Excel en équipe.">
     
@@ -14,11 +14,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="{{ asset('index.css')}}" rel="stylesheet">
+    
     <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
+    <link href="{{ asset('index.css')}}" rel="stylesheet">
+    <link href="{{ asset('css/app.css')}}" rel="stylesheet">
+    @vite(['resources/css/mobile-landing.css'])
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    
+    <!-- Theme Color for mobile browsers -->
+    <meta name="theme-color" content="#2684FF">
+    <meta name="msapplication-navbutton-color" content="#2684FF">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#hero" class="skip-link">Aller au contenu principal</a>
+    
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
@@ -52,7 +65,7 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section id="hero" class="hero">
         <div class="hero-background"></div>
         <div class="container">
             <div class="hero-content">
@@ -64,13 +77,13 @@
                         DataTable Pro est la plateforme collaborative ultime pour importer, analyser et visualiser vos fichiers CSV et Excel. Conçue pour les équipes modernes qui veulent des résultats rapides.
                     </p>
                     <div class="hero-actions">
-                        <button class="btn-primary btn-large">
+                        <button class="btn-primary btn-large" onclick="window.location.href='{{ route('register') }}'">
                             <span>Commencer Gratuitement</span>
                             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                             </svg>
                         </button>
-                        <button class="btn-demo">
+                        <button class="btn-demo" onclick="scrollToDemo()">
                             <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
