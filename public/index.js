@@ -1,14 +1,25 @@
 
 // Mobile Menu Toggle
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Initializing mobile menu');
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const mobileMenu = document.querySelector('.mobile-menu');
     const body = document.body;
 
+    console.log('Mobile menu toggle element:', mobileMenuToggle);
+    console.log('Mobile menu element:', mobileMenu);
+
     if (mobileMenuToggle && mobileMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
+        console.log('Mobile menu elements found, adding event listener');
+        mobileMenuToggle.addEventListener('click', function(e) {
+            console.log('Mobile menu toggle clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            
             mobileMenu.classList.toggle('active');
             body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+            
+            console.log('Menu active state:', mobileMenu.classList.contains('active'));
             
             // Animate hamburger menu
             const spans = mobileMenuToggle.querySelectorAll('span');
@@ -51,6 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 spans[2].style.transform = '';
             }
         });
+    } else {
+        console.log('Mobile menu elements not found!');
     }
 
     // Navbar scroll effect
@@ -66,20 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // Disable parallax on mobile for better performance
-    const isMobile = window.innerWidth <= 768;
-    if (!isMobile) {
-        // Parallax effect for hero section (desktop only)
-        window.addEventListener('scroll', function() {
-            const scrolled = window.pageYOffset;
-            const heroBackground = document.querySelector('.hero-background');
-            if (heroBackground) {
-                heroBackground.style.transform = `translateY(${scrolled * 0.5}px)`;
-            }
-        });
-    }
-});
 
     // Smooth scrolling for anchor links
     const anchorLinks = document.querySelectorAll('a[href^="#"]');
@@ -98,6 +97,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Disable parallax on mobile for better performance
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) {
+        // Parallax effect for hero section (desktop only)
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const heroBackground = document.querySelector('.hero-background');
+            if (heroBackground) {
+                heroBackground.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+    }
 
     // Intersection Observer for animations
     const observerOptions = {
@@ -123,197 +135,6 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(el);
     });
 
-    // Counter animation for stats
-    function animateCounter(element, target) {
-        let current = 0;
-        const increment = target / 100;
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
-            }
-            
-            if (target >= 1000000) {
-                element.textContent = (current / 1000000).toFixed(1) + 'M+';
-            } else if (target >= 1000) {
-                element.textContent = (current / 1000).toFixed(0) + 'K+';
-            } else if (target < 100) {
-                element.textContent = current.toFixed(1) + '%';
-            } else {
-                element.textContent = Math.floor(current);
-            }
-        }, 20);
-    }
-
-    // Animate stats when they come into view
-    const statsSection = document.querySelector('.hero-stats');
-    const statsObserver = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const statNumbers = entry.target.querySelectorAll('.stat-number');
-                statNumbers.forEach(stat => {
-                    const text = stat.textContent;
-                    if (text.includes('50K+')) {
-                        animateCounter(stat, 50000);
-                    } else if (text.includes('99.9%')) {
-                        animateCounter(stat, 99.9);
-                    } else if (text.includes('2M+')) {
-                        animateCounter(stat, 2000000);
-                    }
-                });
-                statsObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
-
-    if (statsSection) {
-        statsObserver.observe(statsSection);
-    }
-
-    // Dashboard preview interactions
-    const dashboardPreview = document.querySelector('.dashboard-preview');
-    if (dashboardPreview) {
-        // Add hover effects to data rows
-        const dataRows = dashboardPreview.querySelectorAll('.data-row:not(.header)');
-        dataRows.forEach(row => {
-            row.addEventListener('mouseenter', function() {
-                this.style.backgroundColor = '#f8f9fa';
-                this.style.cursor = 'pointer';
-            });
-            
-            row.addEventListener('mouseleave', function() {
-                this.style.backgroundColor = '';
-                this.style.cursor = '';
-            });
-        });
-
-        // Simulate search interaction
-        const searchBar = dashboardPreview.querySelector('.search-bar');
-        if (searchBar) {
-            searchBar.addEventListener('click', function() {
-                this.style.borderColor = '#2684FF';
-                this.style.backgroundColor = 'white';
-                
-                // Add typing animation
-                const searchText = this.querySelector('span');
-                if (searchText) {
-                    let text = 'Rechercher dans les données...';
-                    let index = 0;
-                    searchText.textContent = '';
-                    
-                    const typeTimer = setInterval(() => {
-                        searchText.textContent += text[index];
-                        index++;
-                        if (index >= text.length) {
-                            clearInterval(typeTimer);
-                            setTimeout(() => {
-                                searchText.textContent = 'Rechercher...';
-                                this.style.borderColor = '#e9ecef';
-                                this.style.backgroundColor = '#f8f9fa';
-                            }, 2000);
-                        }
-                    }, 100);
-                }
-            });
-        }
-    }
-
-    // Form interactions (if any)
-    const buttons = document.querySelectorAll('.btn-primary, .btn-secondary');
-    buttons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            // Add click ripple effect
-            const ripple = document.createElement('span');
-            const rect = this.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-            
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            ripple.style.position = 'absolute';
-            ripple.style.borderRadius = '50%';
-            ripple.style.background = 'rgba(255, 255, 255, 0.5)';
-            ripple.style.transform = 'scale(0)';
-            ripple.style.animation = 'ripple 0.6s linear';
-            ripple.style.pointerEvents = 'none';
-            
-            this.style.position = 'relative';
-            this.style.overflow = 'hidden';
-            this.appendChild(ripple);
-            
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
-    });
-
-    // Add ripple animation to CSS
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Video placeholder interaction
-    const videoPlaceholder = document.querySelector('.video-placeholder');
-    if (videoPlaceholder) {
-        videoPlaceholder.addEventListener('click', function() {
-            // Simulate video loading
-            this.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 1rem; color: white;">
-                    <div style="width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <p style="margin: 0;">Chargement de la démo...</p>
-                </div>
-            `;
-            
-            // Add spin animation
-            const spinStyle = document.createElement('style');
-            spinStyle.textContent = `
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            `;
-            document.head.appendChild(spinStyle);
-            
-            setTimeout(() => {
-                this.innerHTML = `
-                    <svg width="80" height="80" fill="white" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                    <p>Démo Interactive - 2 min</p>
-                `;
-                alert('Dans une vraie application, une démo vidéo ou interactive se lancerait ici !');
-            }, 2000);
-        });
-    }
-
-    // Parallax effect for hero section
-    window.addEventListener('scroll', function() {
-        const scrolled = window.pageYOffset;
-        const heroBackground = document.querySelector('.hero-background');
-        if (heroBackground) {
-            heroBackground.style.transform = `translateY(${scrolled * 0.5}px)`;
-        }
-    });
-
-    // Add loading animation
-    window.addEventListener('load', function() {
-        document.body.style.opacity = '0';
-        document.body.style.transition = 'opacity 0.5s ease';
-        setTimeout(() => {
-            document.body.style.opacity = '1';
-        }, 100);
-    });
-
     console.log('🚀 DataTable Pro Landing Page chargée avec succès !');
 });
 
@@ -327,22 +148,3 @@ function scrollToDemo() {
         });
     }
 }
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Performance optimization
-const debouncedScroll = debounce(function() {
-    // Scroll-based animations here
-}, 10);
-
-window.addEventListener('scroll', debouncedScroll);

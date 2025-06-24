@@ -21,17 +21,56 @@
     .section-header {
         padding: 0 1rem;
     }
-    
-    /* Improved mobile navigation */
+      /* Improved mobile navigation */
     .mobile-menu {
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.95) !important; /* White background */
     }
     
     .mobile-menu-content {
         max-width: 400px;
         margin: 0 auto;
         padding: 2rem;
+    }
+      /* White background menu text colors */
+    .mobile-menu-content a {
+        color: #1b1b18 !important; /* Dark text for white background */
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 600;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        transition: color 0.2s ease;
+    }
+    
+    .mobile-menu-content a:hover {
+        color: #2684FF !important; /* Blue hover color */
+    }
+    
+    /* Mobile menu buttons styling for white background */
+    .mobile-menu-content .btn-primary {
+        background: #2684FF !important;
+        color: white !important;
+        border: 2px solid #2684FF !important;
+        margin-top: 1rem;
+    }
+    
+    .mobile-menu-content .btn-secondary {
+        background: transparent !important;
+        color: #1b1b18 !important;
+        border: 2px solid #1b1b18 !important;
+        margin-top: 0.5rem;
+    }
+    
+    .mobile-menu-content .btn-primary:hover {
+        background: #1a6ae6 !important;
+        border-color: #1a6ae6 !important;
+    }
+    
+    .mobile-menu-content .btn-secondary:hover {
+        background: #1b1b18 !important;
+        color: white !important;
     }
     
     /* Better form elements on mobile */
@@ -201,7 +240,8 @@
     }
 }
 
-/* Dark mode improvements for mobile */
+/* Dark mode improvements for mobile - DISABLED FOR MOBILE RESPONSIVENESS */
+/*
 @media (prefers-color-scheme: dark) and (max-width: 768px) {
     .navbar {
         background: rgba(0, 0, 0, 0.95) !important;
@@ -225,6 +265,7 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 }
+*/
 
 /* Very small screens (< 360px) */
 @media (max-width: 359px) {
