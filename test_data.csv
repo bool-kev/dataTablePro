@@ -1,0 +1,6 @@
+id,customer_name,email,phone,address,city,country,total_amount,order_date,status,payment_method
+1,Alice Johnson,alice.johnson@email.com,+1-555-0101,123 Oak Street,New York,USA,1299.99,2024-01-15,completed,credit_card
+2,Bob Smith,bob.smith@email.com,+1-555-0102,456 Pine Avenue,Los Angeles,USA,89.98,2024-01-16,pending,paypal
+6,Frank Miller,frank.miller@email.com,+1-555-0106,987 Cedar Boulevard,Chicago,USA,349.99,2024-01-20,completed,debit_card
+8,Henry Taylor,henry.taylor@email.com,+61-2-9876-5432,258 Willow Drive,Sydney,Australia,599.99,2024-01-22,shipped,paypal
+9,Ivy Anderson,ivy.anderson@email.com,+1-555-0109,369 Poplar Avenue,Miami,USA,249.99,2024-01-23,completed,credit_card

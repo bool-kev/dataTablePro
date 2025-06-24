@@ -3,11 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\ImportedData;
+use App\Models\ImportHistory;
 use App\Models\Workspace;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
+
 
 class ImportedDataRepository
 {
@@ -416,5 +418,13 @@ class ImportedDataRepository
         }
         
         return $this->model->forWorkspace($workspace)->count();
+    }
+
+    /**
+     * Delete all imported data for a specific import history
+     */
+    public function deleteByImportHistory(ImportHistory $importHistory): int
+    {
+        return $this->model->where('import_history_id', $importHistory->id)->delete();
     }
 }

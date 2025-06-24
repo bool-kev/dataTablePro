@@ -58,6 +58,16 @@ class ImportHistoryRepository
         return $query->paginate($perPage);
     }
 
+    public function find(int $id): ?ImportHistory
+    {
+        return $this->model->with(['importedData', 'workspace'])->find($id);
+    }
+
+    public function paginateForWorkspace(?Workspace $workspace, int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->paginate($perPage, $workspace);
+    }
+
     public function getStatistics(?Workspace $workspace = null): array
     {
         $query = $this->model;
@@ -87,6 +97,11 @@ class ImportHistoryRepository
             'failed_rows' => $failedRows,
             'success_rate' => $totalRows > 0 ? ($successfulRows / $totalRows) * 100 : 0,
         ];
+    }
+
+    public function getStatisticsForWorkspace(?Workspace $workspace): array
+    {
+        return $this->getStatistics($workspace);
     }
 
     public function getRecentImports(int $limit = 10, ?Workspace $workspace = null): Collection

@@ -178,4 +178,31 @@ class ImportService
 
         return $exportData;
     }
+
+    public function rollbackImport(ImportHistory $importHistory): bool
+    {
+        if ($importHistory->status !== 'completed') {
+            throw new \InvalidArgumentException('Seuls les imports terminés peuvent être annulés.');
+        }
+
+        try {
+            \DB::transaction(function () use ($importHistory) {
+                // Supprimer toutes les données importées pour cet import
+                $deletedCount = $this->importedDataRepository->deleteByImportHistory($importHistory);
+                
+                // Mettre à jour le statut de l'import
+                $this->importHistoryRepository->update($importHistory, [
+                    'status' => 'rolled_back',
+                    'successful_rows' => 0,
+                    'errors' => array_merge($importHistory->errors ?? [], [
+                        'Import annulé le ' . now()->format('d/m/Y H:i:s') . ' - ' . $deletedCount . ' lignes supprimées'
+                    ])
+                ]);
+            });
+
+            return true;
+        } catch (\Exception $e) {
+            throw new \Exception('Erreur lors de l\'annulation de l\'import: ' . $e->getMessage());
+        }
+    }
 }

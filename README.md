@@ -28,6 +28,9 @@ Une application Laravel moderne avec Livewire 3 qui permet aux utilisateurs de c
 ### 📈 Surveillance et Statistiques
 - **Dashboard avec graphiques** (à implémenter)
 - **Historique des imports** avec détails d'erreurs
+- **Visualisation des données par import** - Voir uniquement les données d'un import spécifique
+- **Rollback d'imports** - Annuler un import et supprimer toutes ses données
+- **Popup de statistiques d'import** - Affichage immédiat des résultats après upload
 - **Statistiques** (taux de réussite, nombre de lignes, etc.)
 - **Monitoring en temps réel**
 
@@ -148,8 +151,16 @@ php artisan test --filter=DataTableComponentTest
 1. Sélectionner un workspace
 2. Aller dans "Upload Files"
 3. Sélectionner un fichier CSV/Excel
-4. Attendre le traitement
-5. Vérifier l'historique d'import
+4. **Popup de statistiques d'import** s'affiche automatiquement après upload
+5. **Voir mes données** ou **Fermer** le popup
+6. Vérifier l'historique d'import
+
+### 2.1. Gestion avancée des imports
+1. **Historique des imports** : Liste complète de tous les imports effectués
+2. **Visualisation par import** : Voir uniquement les données d'un import spécifique
+3. **Rollback d'import** : Annuler un import et supprimer toutes ses données
+4. **Détails d'erreurs** : Examiner les erreurs ligne par ligne
+5. **Statistiques détaillées** : Taux de réussite, nombre de lignes, etc.
 
 ### 3. Gestion des données
 1. Aller dans "Data Table"
