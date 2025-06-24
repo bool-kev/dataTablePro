@@ -262,8 +262,8 @@
 {{-- Scripts pour les graphiques --}}
 @if($currentWorkspace)
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
+    <script wire:ignore src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script wire:ignore>
         document.addEventListener('DOMContentLoaded', function() {
             // Graphique des imports par jour
             const importsCtx = document.getElementById('importsChart').getContext('2d');
