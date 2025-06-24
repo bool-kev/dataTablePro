@@ -15,6 +15,8 @@ class FileUpload extends Component
     public $uploading = false;
     public $progress = 0;
     public $currentWorkspace = null;
+    public $showStatsModal = false;
+    public $importStats = null;
 
     protected ImportService $importService;
     protected WorkspaceService $workspaceService;
@@ -72,19 +74,27 @@ class FileUpload extends Component
             
             $this->progress = 100;
             
-            session()->flash('success', 
-                "Fichier importé avec succès! " . 
-                $importHistory->successful_rows . " lignes importées, " . 
-                $importHistory->failed_rows . " erreurs."
-            );
-
+            // Préparer les statistiques pour le modal
+            $this->importStats = [
+                'filename' => $this->file->getClientOriginalName(),
+                'filesize' => $this->file->getSize(),
+                'total_rows' => $importHistory->total_rows,
+                'successful_rows' => $importHistory->successful_rows,
+                'failed_rows' => $importHistory->failed_rows,
+                'success_rate' => $importHistory->total_rows > 0 ? round(($importHistory->successful_rows / $importHistory->total_rows) * 100, 2) : 0,
+                'errors' => $importHistory->error_details ? json_decode($importHistory->error_details, true) : [],
+                'import_date' => $importHistory->created_at->format('d/m/Y H:i:s'),
+                'workspace_name' => $this->currentWorkspace->name
+            ];
             // Émettre un événement pour rafraîchir la table
             $this->dispatch('file-imported');
             
-            // Reset
+            // Reset le formulaire mais garder les stats
             $this->reset(['file', 'uploading', 'progress']);
-
-            return redirect()->route('data-table');
+            
+            // Afficher le modal avec les statistiques
+            $this->showStatsModal = true;
+            
 
         } catch (\Exception $e) {
             $this->progress = 0;
@@ -92,6 +102,18 @@ class FileUpload extends Component
         } finally {
             $this->uploading = false;
         }
+    }
+
+    public function closeStatsModal()
+    {
+        $this->showStatsModal = false;
+        $this->importStats = null;
+    }
+
+    public function viewData()
+    {
+        $this->closeStatsModal();
+        return redirect()->route('data-table');
     }
 
     public function render()

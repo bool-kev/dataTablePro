@@ -132,4 +132,138 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal Statistiques d'Import --}}
+    @if($showStatsModal && $importStats)
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="stats-modal">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                <div class="mt-3">
+                    {{-- Header du modal --}}
+                    <div class="flex items-center justify-between pb-4 border-b">
+                        <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                            <svg class="mr-3 h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Import terminé avec succès !
+                        </h3>
+                        <button wire:click="closeStatsModal" class="text-gray-400 hover:text-gray-600">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {{-- Contenu du modal --}}
+                    <div class="mt-6 space-y-6">
+                        {{-- Informations du fichier --}}
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-blue-900 mb-3 flex items-center">
+                                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Informations du fichier
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="font-medium text-gray-700">Nom du fichier:</span>
+                                    <span class="text-gray-900">{{ $importStats['filename'] }}</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-gray-700">Taille:</span>
+                                    <span class="text-gray-900">{{ number_format($importStats['filesize'] / 1024, 2) }} KB</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-gray-700">Workspace:</span>
+                                    <span class="text-gray-900">{{ $importStats['workspace_name'] }}</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-gray-700">Date d'import:</span>
+                                    <span class="text-gray-900">{{ $importStats['import_date'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Statistiques principales --}}
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <div class="text-2xl font-bold text-gray-900">{{ number_format($importStats['total_rows']) }}</div>
+                                <div class="text-sm text-gray-600">Lignes totales</div>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg text-center">
+                                <div class="text-2xl font-bold text-green-600">{{ number_format($importStats['successful_rows']) }}</div>
+                                <div class="text-sm text-gray-600">Réussies</div>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded-lg text-center">
+                                <div class="text-2xl font-bold text-red-600">{{ number_format($importStats['failed_rows']) }}</div>
+                                <div class="text-sm text-gray-600">Échecs</div>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                <div class="text-2xl font-bold text-blue-600">{{ $importStats['success_rate'] }}%</div>
+                                <div class="text-sm text-gray-600">Taux de réussite</div>
+                            </div>
+                        </div>
+
+                        {{-- Barre de progression visuelle --}}
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                <span>Progression de l'import</span>
+                                <span>{{ $importStats['success_rate'] }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full" 
+                                     style="width: {{ $importStats['success_rate'] }}%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>{{ number_format($importStats['successful_rows']) }} réussies</span>
+                                <span>{{ number_format($importStats['failed_rows']) }} erreurs</span>
+                            </div>
+                        </div>
+
+                        {{-- Erreurs (si il y en a) --}}
+                        @if($importStats['failed_rows'] > 0 && !empty($importStats['errors']))
+                            <div class="bg-red-50 p-4 rounded-lg">
+                                <h4 class="font-medium text-red-900 mb-3 flex items-center">
+                                    <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    Détails des erreurs
+                                </h4>
+                                <div class="max-h-32 overflow-y-auto">
+                                    <ul class="text-sm text-red-700 space-y-1">
+                                        @foreach(array_slice($importStats['errors'], 0, 5) as $error)
+                                            <li class="flex items-start">
+                                                <span class="inline-block w-2 h-2 bg-red-400 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                                                {{ $error }}
+                                            </li>
+                                        @endforeach
+                                        @if(count($importStats['errors']) > 5)
+                                            <li class="text-red-600 font-medium">
+                                                ... et {{ count($importStats['errors']) - 5 }} autres erreurs
+                                            </li>
+                                        @endif
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Boutons d'action --}}
+                    <div class="flex items-center justify-end space-x-3 pt-6 border-t mt-6">
+                        <button wire:click="closeStatsModal" 
+                                class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm font-medium rounded-md transition-colors">
+                            Fermer
+                        </button>
+                        <button wire:click="viewData" 
+                                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors flex items-center">
+                            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            Voir mes données
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
